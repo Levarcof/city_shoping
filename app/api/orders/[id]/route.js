@@ -28,7 +28,8 @@ export async function GET(req, context) {
 
     const order = await Order.findById(id)
       .populate("customer", "name email phone")
-      .populate("items.shop", "name image");
+      .populate("shop", "name images")
+      .populate("items.shop", "name images");
 
     if (!order) {
       return NextResponse.json(

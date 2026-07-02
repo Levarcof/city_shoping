@@ -44,7 +44,7 @@ function CustomerHomeInner({ user }) {
     { key: "food_grocery", subkey: "dairy", label: "Dairy", img: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=150&auto=format&fit=crop&q=60" },
     { key: "fashion_apparel", subkey: "general_clothes", label: "Clothes", img: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=150&auto=format&fit=crop&q=60" },
     { key: "electronics_hardware", subkey: "electronics", label: "Electronics", img: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=150&auto=format&fit=crop&q=60" },
-    { key: "food_grocery", subkey: "kirana", label: "Grocery", img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=150&auto=format&fit=crop&q=60" },
+    { key: "food_grocery", subkey: "namkeen_snacks", label: "Food", img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=150&auto=format&fit=crop&q=60" },
     { key: "health_beauty", subkey: "medical_store", label: "Medicines", img: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=150&auto=format&fit=crop&q=60" },
   ];
 
@@ -217,13 +217,6 @@ function CustomerHomeInner({ user }) {
                   </svg>
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#00B259] border-2 border-white" />
                 </button>
-                <div
-                  onClick={() => handleNavSelect("profile")}
-                  className="w-9 h-9 rounded-xl bg-[#00B259] flex items-center justify-center font-black text-white text-sm cursor-pointer overflow-hidden"
-                >
-                     <img src={user.image} alt="user" className="w-full h-full object-cover" />
-                   
-                </div>
               </div>
             </header>
 
@@ -246,12 +239,7 @@ function CustomerHomeInner({ user }) {
                   </svg>
                   <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#00B259] border border-white" />
                 </button>
-                <div
-                  onClick={() => handleNavSelect("profile")}
-                  className="w-8 h-8 rounded-xl bg-[#00B259] flex items-center justify-center font-black text-white text-xs overflow-hidden cursor-pointer"
-                >
-                   <img src={user.image} alt="user" className="w-full h-full object-cover" />
-                </div>
+             
               </div>
             </header>
           </>
