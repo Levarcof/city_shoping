@@ -36,6 +36,7 @@ export async function GET(req, context) {
         { status: 404 }
       );
     }
+    console.log(order?.shop)
 
     // 🔒 security: only owner or customer can see order
     if (

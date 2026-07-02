@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { SHOP_CATEGORIES } from "@/app/constants/shopCategories";
@@ -16,8 +16,20 @@ const IC = {
       <path d="M19 12H5M12 5l-7 7 7 7" />
     </svg>
   ),
-  Heart: ({ on }) => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill={on ? "#ef4444" : "none"} stroke={on ? "#ef4444" : "currentColor"} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+  Heart: ({ on, pop }) => (
+    <svg
+      width="18" height="18" viewBox="0 0 24 24"
+      fill={on ? "#ef4444" : "none"}
+      stroke={on ? "#ef4444" : "currentColor"}
+      strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+      style={{
+        transition: "fill .25s ease, stroke .25s ease",
+        transform: pop ? "scale(1.25)" : "scale(1)",
+        transitionProperty: "fill, stroke, transform",
+        transitionDuration: ".25s, .25s, .28s",
+        transitionTimingFunction: "ease, ease, cubic-bezier(.34,1.56,.64,1)",
+      }}
+    >
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
     </svg>
   ),
@@ -29,11 +41,6 @@ const IC = {
   WA: ({ size = 15 }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
-    </svg>
-  ),
-  Clock: () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
     </svg>
   ),
   Cart: () => (
@@ -79,12 +86,14 @@ export default function ShopDetailPage() {
   const [filter, setFilter] = useState("");
   const [toast, setToast] = useState(null);
   const [wishlisted, setWishlisted] = useState(false);
+  const [heartPop, setHeartPop] = useState(false);
+  const [savingWishlist, setSavingWishlist] = useState(false);
   const [added, setAdded] = useState({});
   const [activeImg, setActiveImg] = useState(0);
   const touchStartX = useRef(0);
 
-  const toast$ = (msg, type = "success") => {
-    setToast({ msg, type });
+  const toast$ = (msg) => {
+    setToast(msg);
     setTimeout(() => setToast(null), 2800);
   };
 
@@ -98,6 +107,82 @@ export default function ShopDetailPage() {
       if (data.success) setShop(data.shop);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
+  };
+
+  // Once the shop loads, check whether it's already in the logged-in user's savedShops
+  // by reading the current user. Defensive against a few common response shapes
+  // (user.savedShops / data.savedShops / nested data.user) and against savedShops
+  // containing either raw ids or populated shop objects.
+  useEffect(() => {
+    if (!shop?._id) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/user/me", { credentials: "include" });
+        const contentType = res.headers.get("content-type") || "";
+
+        if (!res.ok || !contentType.includes("application/json")) {
+          console.error("[wishlist] /api/user/me did not return JSON — check the route exists at this exact path.", res.status);
+          return;
+        }
+
+        const data = await res.json();
+        // TEMP DEBUG: uncomment while wiring this up, remove once confirmed working
+        // console.log("[wishlist] /api/user/me response:", data);
+
+        const userObj = data.user ?? data.data?.user ?? data.data ?? data;
+        const savedList = userObj?.savedShops ?? [];
+
+        const shopIdStr = String(shop._id);
+        const isSaved = savedList.some(entry => {
+          const entryId = typeof entry === "string" ? entry : (entry?._id ?? entry?.id);
+          return String(entryId) === shopIdStr;
+        });
+
+        if (!cancelled) setWishlisted(isSaved);
+      } catch (e) {
+        console.error("[wishlist] failed to check saved status:", e);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [shop?._id]);
+
+  const toggleWishlist = async () => {
+    if (!shop?._id || savingWishlist) return;
+
+    const nextState = !wishlisted;
+
+    // optimistic update + pop animation
+    setWishlisted(nextState);
+    setHeartPop(true);
+    setTimeout(() => setHeartPop(false), 280);
+    setSavingWishlist(true);
+
+    try {
+      if (nextState) {
+        const res = await fetch("/api/savedShop/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shopId: shop._id }),
+        });
+        if (!res.ok) throw new Error("Save failed");
+        toast$("Shop saved");
+      } else {
+        const res = await fetch(`/api/savedShop/delete/${shop._id}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error("Remove failed");
+        toast$("Shop removed from saved");
+      }
+    } catch (e) {
+      console.error(e);
+      setWishlisted(!nextState); // revert on failure
+      toast$("Something went wrong");
+    } finally {
+      setSavingWishlist(false);
+    }
   };
 
   const addToCart = async (e, item) => {
@@ -119,6 +204,14 @@ export default function ShopDetailPage() {
     } catch (e) { console.error(e); }
   };
 
+  const items = useMemo(() => {
+    if (!shop?.items) return shop?.items;
+    if (!filter) return shop.items;
+    return shop.items.filter(
+      i => i.name.toLowerCase().includes(filter.toLowerCase()) || i.category === filter
+    );
+  }, [shop?.items, filter]);
+
   /* Loading */
   if (loading) return (
     <div style={S.page}>
@@ -138,10 +231,6 @@ export default function ShopDetailPage() {
       <button onClick={() => router.back()} style={S.btnOutlineGreen}>Go back</button>
     </div>
   );
-
-  const items = filter
-    ? shop.items?.filter(i => i.name.toLowerCase().includes(filter.toLowerCase()) || i.category === filter)
-    : shop.items;
 
   const tel = `tel:${shop.phone}`;
   const wa = `https://wa.me/${shop.whatsapp?.replace(/[^0-9]/g, "")}`;
@@ -230,6 +319,9 @@ export default function ShopDetailPage() {
         .map-box{height:280px}
         @media (min-width:768px){.map-box{height:360px}}
         @media (min-width:1024px){.map-box{height:440px}}
+
+        .heart-btn{transition:background .18s,border-color .18s}
+        .heart-btn:active{transform:scale(.9)}
       `}</style>
 
       {/* ── Toast ── */}
@@ -245,7 +337,7 @@ export default function ShopDetailPage() {
           <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", color: "#22c55e" }}>
             <IC.Check />
           </span>
-          {toast.msg}
+          {toast}
         </div>
       )}
 
@@ -265,11 +357,14 @@ export default function ShopDetailPage() {
           </div>
 
           <button
-            onClick={() => { setWishlisted(p => !p); toast$(wishlisted ? "Removed from wishlist" : "Saved to wishlist"); }}
-            style={{ ...S.iconBtn, color: wishlisted ? "#ef4444" : "#6b7280" }}
-            aria-label="Wishlist"
+            onClick={toggleWishlist}
+            disabled={savingWishlist}
+            className="heart-btn"
+            style={{ ...S.iconBtn, color: wishlisted ? "#ef4444" : "#6b7280", cursor: savingWishlist ? "wait" : "pointer" }}
+            aria-label={wishlisted ? "Remove from saved" : "Save shop"}
+            aria-pressed={wishlisted}
           >
-            <IC.Heart on={wishlisted} />
+            <IC.Heart on={wishlisted} pop={heartPop} />
           </button>
         </div>
       </header>
@@ -280,6 +375,8 @@ export default function ShopDetailPage() {
           src={galleryImages[activeImg]}
           alt={`${shop.name} photo ${activeImg + 1}`}
           style={S.heroImg}
+          loading="eager"
+          decoding="async"
         />
         <div style={S.heroOverlay} />
 
@@ -315,7 +412,7 @@ export default function ShopDetailPage() {
                 className={`thumb-btn ${activeImg === i ? "thumb-active" : ""}`}
                 aria-label={`View photo ${i + 1}`}
               >
-                <img src={img} alt="" />
+                <img src={img} alt="" loading="lazy" decoding="async" />
               </button>
             ))}
           </div>
@@ -376,7 +473,7 @@ export default function ShopDetailPage() {
                     {/* Image — object-fit:contain so the full product is always visible */}
                     <div style={S.prodImgWrap}>
                       {item.image
-                        ? <img src={item.image} alt={item.name} className="prod-img" style={S.prodImg} />
+                        ? <img src={item.image} alt={item.name} className="prod-img" style={S.prodImg} loading="lazy" decoding="async" />
                         : <div style={S.prodNoImg}>No image</div>
                       }
                       {hasDiscount && <span style={S.discountBadge}>{discountPct}% OFF</span>}

@@ -243,14 +243,6 @@ export default function CartPage() {
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4">
-          <button
-            onClick={() => router.back()}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition-colors flex-shrink-0"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-          </button>
           <div className="min-w-0">
             <h1 className="font-black text-lg text-gray-900 tracking-tight">My Cart</h1>
             {cart?.items?.length > 0 && (
@@ -299,19 +291,17 @@ export default function CartPage() {
                 <div key={shopId} className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm shadow-gray-900/[0.02]">
                   {/* Shop header */}
                   <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-50">
-                    <div className="w-9 h-9 rounded-xl bg-[#00B259] flex items-center justify-center text-white text-sm font-black flex-shrink-0">
-                      {shopName?.[0]?.toUpperCase() || 'S'}
-                    </div>
+                  
                     <div className="min-w-0">
-                      <h3 className="font-bold text-sm text-gray-900 truncate">{shopName}</h3>
+                      <h3 className="font-bold text-md md:text-xl text-gray-900 truncate">{shopName}</h3>
                       <p className="text-[11px] text-gray-400 font-medium">{itemCount} item{itemCount !== 1 ? 's' : ''}</p>
                     </div>
                   </div>
 
                   {/* Items */}
-                  <div className="px-5 py-4 space-y-4">
+                  <div   className="px-5 py-4 space-y-4">
                     {items.map(item => (
-                      <div key={item.itemId} className="flex gap-3.5">
+                      <div onClick={() => router.push(`/product/${item.itemId}?shopId=${item.shopId}`)} key={item.itemId} className="flex gap-3.5">
                         {item.image ? (
                           <img
                             src={item.image}

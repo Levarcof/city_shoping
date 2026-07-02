@@ -13,7 +13,8 @@ export async function DELETE(req, { params }) {
     if (!itemId) return NextResponse.json({ success: false, message: 'Item ID required' }, { status: 400 });
 
     await connectToDatabase();
-    const cart = await Cart.findOne({ user: user.id });
+    const cart = await Cart.findOne({ user: user.id })
+                 
     if (!cart) return NextResponse.json({ success: false, message: 'Cart not found' }, { status: 404 });
 
     cart.items = cart.items.filter(i => i.itemId.toString() !== itemId);

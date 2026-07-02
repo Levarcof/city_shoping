@@ -165,12 +165,12 @@ export default function ProfilePage() {
       {/* Premium Header */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-emerald-100 px-4 py-4 md:px-8 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-4">
-          <button
+          {/* <button
             onClick={() => router.back()}
             className="p-2 rounded-full hover:bg-emerald-50 text-emerald-600 transition-colors"
           >
             {Icon.back}
-          </button>
+          </button> */}
           <h1 className="font-bold text-xl text-slate-800 tracking-tight">Account Profile</h1>
         </div>
 
