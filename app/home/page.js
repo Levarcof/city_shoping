@@ -5,7 +5,6 @@ import { VALID_ROLES } from "./constants";
 import { PageLoader } from "./SharedUI";
 import CustomerHome from "./CustomerHome";
 import OwnerHome from "./OwnerHome";
-//Smooth like butter like criminal under cover gone pop like trouble
  export default function HomePage() {
   const router = useRouter();
   const [user, setUser] = useState(null);

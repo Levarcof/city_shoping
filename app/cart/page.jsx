@@ -8,7 +8,6 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState('');
 
-  // showBuyModal holds either a shopId, 'all', or false
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [buyStep, setBuyStep] = useState(1);
   const [address, setAddress] = useState({ street: '', city: '', pincode: '' });
@@ -109,7 +108,6 @@ export default function CartPage() {
     );
   };
 
-  // Group items by shopId
   const shopGroups = cart?.items?.reduce((acc, item) => {
     if (!acc[item.shopId]) acc[item.shopId] = [];
     acc[item.shopId].push(item);
@@ -228,7 +226,6 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFCFA] text-gray-900 font-inter pb-32">
-      {/* Toast */}
       {toast && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[60] bg-white border border-green-100 shadow-lg shadow-green-900/5 text-gray-700 text-sm font-semibold px-5 py-3 rounded-2xl flex items-center gap-2.5">
           <span className="w-5 h-5 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
@@ -240,7 +237,6 @@ export default function CartPage() {
         </div>
       )}
 
-      {/* Header */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4">
           <div className="min-w-0">
@@ -262,7 +258,6 @@ export default function CartPage() {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 space-y-5 mt-6">
         {!cart || cart.items.length === 0 ? (
-          /* Empty state */
           <div className="text-center py-24 px-6 bg-white border border-gray-100 rounded-3xl">
             <div className="w-16 h-16 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center mx-auto mb-4">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#00B259" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -280,7 +275,6 @@ export default function CartPage() {
           </div>
         ) : (
           <>
-            {/* Shop-wise groups */}
             {Object.keys(shopGroups).map(shopId => {
               const items = shopGroups[shopId];
               const shopName = items[0].shopName;
@@ -289,7 +283,6 @@ export default function CartPage() {
 
               return (
                 <div key={shopId} className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm shadow-gray-900/[0.02]">
-                  {/* Shop header */}
                   <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-50">
                   
                     <div className="min-w-0">
@@ -298,7 +291,6 @@ export default function CartPage() {
                     </div>
                   </div>
 
-                  {/* Items */}
                   <div   className="px-5 py-4 space-y-4">
                     {items.map(item => (
                       <div onClick={() => router.push(`/product/${item.itemId}?shopId=${item.shopId}`)} key={item.itemId} className="flex gap-3.5">
@@ -347,7 +339,6 @@ export default function CartPage() {
                     ))}
                   </div>
 
-                  {/* Shop footer */}
                   <div className="bg-green-50/50 px-5 py-4 border-t border-gray-50 flex items-center justify-between gap-4">
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-0.5">Subtotal</p>
@@ -364,7 +355,6 @@ export default function CartPage() {
               );
             })}
 
-            {/* Checkout everything at once, if items span multiple shops */}
             {totalShops > 1 && (
               <div className="bg-white border border-green-100 rounded-3xl p-5 flex items-center justify-between gap-4 shadow-sm shadow-green-900/[0.03]">
                 <div>
@@ -385,7 +375,6 @@ export default function CartPage() {
         )}
       </main>
 
-      {/* Sticky bottom summary (mobile-friendly quick checkout) */}
       {cart?.items?.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-gray-100 px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
           <div>
@@ -401,7 +390,6 @@ export default function CartPage() {
         </div>
       )}
 
-      {/* Checkout Modal */}
       <div className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center transition-opacity duration-300 ${showBuyModal ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => !orderSuccess && setShowBuyModal(false)} />
 
@@ -421,7 +409,6 @@ export default function CartPage() {
                   </button>
                 </div>
 
-                {/* Step indicator */}
                 <div className="flex items-center gap-2 mb-6">
                   <div className="flex items-center gap-2 flex-1">
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black transition-colors ${buyStep >= 1 ? 'bg-[#00B259] text-white' : 'bg-gray-100 text-gray-400'}`}>1</div>

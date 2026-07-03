@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 
-/* ─── Status config ─── */
 const STATUS_CONFIG = {
   placed: { label: 'Order Placed', step: 0 },
   confirmed: { label: 'Confirmed', step: 1 },
@@ -32,7 +31,6 @@ const CopyIcon = ({ className }) => (
   </svg>
 );
 
-/* ─── Copyable field ─── */
 const CopyField = ({ label, value }) => {
   const [copied, setCopied] = useState(false);
   const handleCopy = async (e) => {
@@ -62,7 +60,6 @@ const CopyField = ({ label, value }) => {
   );
 };
 
-/* ─── Order Progress Tracker (handles cancelled inline) ─── */
 const OrderTracker = ({ status }) => {
   const isCancelled = status === 'cancelled';
 
@@ -94,7 +91,6 @@ const OrderTracker = ({ status }) => {
       </div>
 
       <div className="relative flex items-start justify-between">
-        {/* connecting line */}
         <div className="absolute top-4 left-0 right-0 h-0.5 bg-[#e3ece4] mx-[10%]" />
         <div
           className="absolute top-4 left-0 h-0.5 mx-[10%] transition-all duration-700 ease-out"
@@ -142,7 +138,6 @@ const OrderTracker = ({ status }) => {
   );
 };
 
-/* ─── Section wrapper ─── */
 const Section = ({ title, icon, children }) => (
   <div className="bg-white border border-[#e3ece4] rounded-2xl overflow-hidden shadow-[0_1px_2px_rgba(16,24,17,0.04)]">
     {title && (
@@ -155,7 +150,6 @@ const Section = ({ title, icon, children }) => (
   </div>
 );
 
-/* ─── Skeleton ─── */
 const DetailSkeleton = () => (
   <div className="min-h-screen bg-[#f7faf7]">
     <div className="sticky top-0 z-40 bg-[#f7faf7]/90 backdrop-blur-md border-b border-[#e3ece4] h-[73px]" />
@@ -173,7 +167,6 @@ const DetailSkeleton = () => (
   </div>
 );
 
-/* ─── Main Page ─── */
 export default function OrderDetailPage() {
   const router = useRouter();
   const { id } = useParams();
@@ -226,7 +219,6 @@ export default function OrderDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#f7faf7] text-[#0f1f13] font-sans pb-28 selection:bg-[#16a34a]/20">
-      {/* Header */}
       <header className="sticky top-0 z-40 bg-[#f7faf7]/90 backdrop-blur-md border-b border-[#e3ece4]">
         <div className="max-w-2xl lg:max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4">
           <button
@@ -252,12 +244,9 @@ export default function OrderDetailPage() {
 
       <main className="max-w-2xl lg:max-w-5xl mx-auto px-4 sm:px-6 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 items-start">
 
-        {/* Left / main column */}
         <div className="lg:col-span-2 space-y-4 sm:space-y-5">
-          {/* Order Tracker — now handles cancelled state inline */}
           <OrderTracker status={order.status} />
 
-          {/* Shop Info */}
           <Section title="Shop">
             <div className="flex items-center gap-3">
               {order?.shop?.images ? (
@@ -276,7 +265,6 @@ export default function OrderDetailPage() {
             </div>
           </Section>
 
-          {/* Items */}
           <Section title={`Items (${order.items.length})`}>
             <div className="space-y-4 sm:space-y-5 divide-y divide-[#eef4ef]">
               {order.items.map((item, idx) => (
@@ -321,7 +309,6 @@ export default function OrderDetailPage() {
             </div>
           </Section>
 
-          {/* Delivery Address */}
           {order.deliveryAddress && (
             <Section title="Delivery Address">
               <div className="flex items-start gap-3">
@@ -344,9 +331,7 @@ export default function OrderDetailPage() {
           )}
         </div>
 
-        {/* Right / summary column */}
         <div className="space-y-4 sm:space-y-5 lg:sticky lg:top-24">
-          {/* Bill Summary */}
           <Section title="Bill Summary">
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
@@ -367,7 +352,6 @@ export default function OrderDetailPage() {
             </div>
           </Section>
 
-          {/* Payment Info */}
           <Section title="Payment">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
@@ -403,7 +387,6 @@ export default function OrderDetailPage() {
             </div>
           </Section>
 
-          {/* Order ID */}
           <div className="text-center pb-2">
             <p className="text-[10px] text-[#9db6a2] uppercase tracking-widest font-bold">Order ID</p>
             <p className="text-[#9db6a2] text-xs font-mono mt-1 break-all">{order._id}</p>

@@ -41,9 +41,6 @@ function EditableField({ label, value, name, type = "text", onChange, editing, p
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// PRODUCT DETAIL PANEL — slide-over drawer, navbar/sidebar untouched
-// ═══════════════════════════════════════════════════════════════════════════════
 export default function ProductDetailPanel({ shop, item, onClose, onUpdated, showToast }) {
   const [editing, setEditing]     = useState(false);
   const [saving, setSaving]       = useState(false);
@@ -62,13 +59,11 @@ export default function ProductDetailPanel({ shop, item, onClose, onUpdated, sho
 
   const [form, setForm] = useState(buildForm(item));
 
-  // Jab nayi product card click ho (panel already open ho) to form reset ho jaye
   useEffect(() => {
     setForm(buildForm(item));
     setEditing(false);
   }, [item._id]);
 
-  // Esc se band ho jaye
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -133,7 +128,7 @@ export default function ProductDetailPanel({ shop, item, onClose, onUpdated, sho
       if (data.success) {
         showToast?.("✓ Product updated");
         setEditing(false);
-        onUpdated?.(data.item); // parent ko updated item de do taaki list bhi refresh ho
+        onUpdated?.(data.item); 
       } else {
         showToast?.("Save failed: " + (data.message || "Unknown error"));
       }
@@ -146,20 +141,17 @@ export default function ProductDetailPanel({ shop, item, onClose, onUpdated, sho
 
   return (
     <div className="fixed inset-0 z-50 flex">
-      {/* Backdrop */}
       <div
         onClick={onClose}
         className="absolute inset-0 bg-black/40 backdrop-blur-[2px] animate-[fadeIn_0.15s_ease]"
       />
 
-      {/* Panel */}
       <div className="ml-auto relative w-full sm:max-w-xl lg:max-w-2xl h-full bg-[#F7F8FA] shadow-2xl overflow-y-auto animate-[slideIn_0.25s_ease]">
         <style>{`
           @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
           @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         `}</style>
 
-        {/* Top bar */}
         <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-100">
           <div className="px-5 sm:px-6 py-4 flex items-center justify-between gap-3">
             <div className="min-w-0">
@@ -205,10 +197,8 @@ export default function ProductDetailPanel({ shop, item, onClose, onUpdated, sho
           </div>
         </div>
 
-        {/* Body */}
         <div className="px-5 sm:px-6 py-6 space-y-5">
 
-          {/* Image */}
           <div className="relative w-full aspect-square max-w-sm mx-auto rounded-3xl bg-white border border-gray-100 shadow-sm overflow-hidden">
             {form.image ? (
               <img src={form.image} alt={form.name} className="w-full h-full object-contain p-8" />
@@ -255,7 +245,6 @@ export default function ProductDetailPanel({ shop, item, onClose, onUpdated, sho
             )}
           </div>
 
-          {/* Price + Stock row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Price</p>
@@ -294,7 +283,6 @@ export default function ProductDetailPanel({ shop, item, onClose, onUpdated, sho
             </div>
           </div>
 
-          {/* Info */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 shadow-sm space-y-5">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-50 pb-2.5">Product Info</h3>
 

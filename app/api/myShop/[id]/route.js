@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 export async function GET(req, context) {
   try {
     await connectToDatabase();
-    const { id } = await context.params; // ✅ correct way
+    const { id } = await context.params; 
 
     console.log("owner id:", id);
 

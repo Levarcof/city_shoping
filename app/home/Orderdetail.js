@@ -21,7 +21,7 @@ const STATUS_OPTIONS  = ["pending", "confirmed", "preparing", "ready", "delivere
 const PAYMENT_OPTIONS = ["pending", "paid", "failed", "refunded"];
 
 export default function OrderDetail({ order, onBack, onUpdated }) {
-  const [savingField, setSavingField] = useState(null); // "status" | "paymentStatus" | null
+  const [savingField, setSavingField] = useState(null); 
   const [error, setError] = useState("");
 
   const s  = STATUS_STYLES[order.status] || STATUS_STYLES.pending;
@@ -34,7 +34,6 @@ export default function OrderDetail({ order, onBack, onUpdated }) {
   const itemsTotal = (order.items || []).reduce((sum, it) => sum + it.price * it.qty, 0);
   const deliveryFee = order.deliveryFee || 0;
 
-  // Generic PATCH call to /api/update/order/[id]
   const updateOrder = async (field, value) => {
     setError("");
     setSavingField(field);
@@ -46,7 +45,7 @@ export default function OrderDetail({ order, onBack, onUpdated }) {
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.message || "Update failed");
-      onUpdated(data.order); // push updated order back up to OrdersTab
+      onUpdated(data.order); 
     } catch (err) {
       console.error(err);
       setError(err.message || "Something went wrong while updating the order");
@@ -57,7 +56,6 @@ export default function OrderDetail({ order, onBack, onUpdated }) {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div className="flex items-center gap-3">
         <button
           onClick={onBack}

@@ -21,7 +21,6 @@ const inputCls = (err) =>
   `w-full bg-gray-50 border ${err ? "border-red-300 focus:border-red-400 focus:ring-red-100" : "border-gray-200 focus:border-[#00B259] focus:ring-green-100"} text-gray-900 rounded-xl px-4 py-2.5 text-sm outline-none transition-all focus:ring-2 focus:bg-white placeholder:text-gray-400`;
 
 export default function AddProductPage({ shopId, onSuccess, onCancel }) {
-  // 1. state में subCategory को शामिल किया
   const [product, setProduct] = useState({
     name: "", description: "", price: "", unit: "", subCategory: "", inStock: true, file: null, preview: "",
   });
@@ -39,8 +38,6 @@ export default function AddProductPage({ shopId, onSuccess, onCancel }) {
     if (!product.name.trim())  e.name  = "Product name is required";
     if (!product.price)        e.price = "Price is required";
     if (!product.unit.trim())  e.unit  = "Unit is required (e.g. kg, pc)";
-    // अगर आप सब-कैटेगरी को ज़रूरी (Required) बनाना चाहते हैं, तो नीचे वाली लाइन को अनकमेंट (uncomment) कर दें:
-    // if (!product.subCategory.trim()) e.subCategory = "Sub-category is required";
     
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -66,7 +63,7 @@ export default function AddProductPage({ shopId, onSuccess, onCancel }) {
           description: product.description,
           price: Number(product.price),
           unit: product.unit,
-          subCategory: product.subCategory, // 2. API पेलोड में सब-कैटेगरी जोड़ा
+          subCategory: product.subCategory, 
           inStock: product.inStock,
           image,
         }),
@@ -101,10 +98,8 @@ export default function AddProductPage({ shopId, onSuccess, onCancel }) {
         </div>
       </div>
 
-      {/* Form card */}
       <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-5 shadow-sm">
 
-        {/* Image upload */}
         <Field label="Product Image">
           <label className="flex items-center gap-4 cursor-pointer p-4 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#00B259] hover:bg-green-50/30 transition-all group">
             {product.preview ? (
@@ -170,7 +165,6 @@ export default function AddProductPage({ shopId, onSuccess, onCancel }) {
           </Field>
         </div>
 
-        {/* 3. Sub Category Input Field (नया जोड़ा गया) */}
         <Field label="Sub-Category (optional)" error={errors.subCategory}>
           <input
             type="text"
@@ -181,7 +175,6 @@ export default function AddProductPage({ shopId, onSuccess, onCancel }) {
           />
         </Field>
 
-        {/* Description */}
         <Field label="Description (optional)">
           <textarea
             rows={3}
@@ -192,7 +185,6 @@ export default function AddProductPage({ shopId, onSuccess, onCancel }) {
           />
         </Field>
 
-        {/* In Stock toggle */}
         <div
           className="flex items-center justify-between p-4 bg-gray-50 border border-gray-100 rounded-xl cursor-pointer hover:border-green-200 transition-all"
           onClick={() => setProduct((p) => ({ ...p, inStock: !p.inStock }))}
@@ -209,7 +201,6 @@ export default function AddProductPage({ shopId, onSuccess, onCancel }) {
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex gap-3">
         <button
           type="button"

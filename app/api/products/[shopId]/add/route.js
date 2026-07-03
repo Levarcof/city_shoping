@@ -42,9 +42,6 @@ export async function POST(req, { params }) {
       );
     }
 
-    // ❌ subCategory validation completely remove kar diya
-    // Ab koi bhi category enter kar sakte ho
-
     const newItem = {
       name,
       description,
@@ -52,7 +49,7 @@ export async function POST(req, { params }) {
       unit,
       image,
       inStock: inStock ?? true,
-      subcat: subCategory ?? '',   // empty string agar na bhejo toh
+      subcat: subCategory ?? '',   
     };
 
     shop.items.push(newItem);

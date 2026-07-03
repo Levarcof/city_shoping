@@ -5,17 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { SHOP_CATEGORIES } from "../home/constants";
 
-const MapView = dynamic(() => import("@/components/MapView"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-full w-full bg-slate-50 animate-pulse flex flex-col items-center justify-center text-sm text-slate-400 gap-2">
-      <div className="w-6 h-6 border-2 border-[#00B259] border-t-transparent rounded-full animate-spin"></div>
-      Loading map assets…
-    </div>
-  ),
-});
 
-/* ═══════════════════════════════════ icons ═══════════════════════════════════ */
 const StorefrontIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -67,16 +57,15 @@ const MapIcon = ({ className }) => (
   </svg>
 );
 
-/* ═══════════════════════════════════ shop card ═══════════════════════════════════ */
 const ShopCard = memo(function ShopCard({ shop, index }) {
   return (
     <Link
       href={`/shop/${shop._id}`}
       prefetch
       style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}
-      className="card-anim group bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-lg hover:shadow-slate-900/[0.06] hover:border-[#00B259]/30 hover:-translate-y-0.5 transition-all duration-300 flex p-3 gap-4"
+      className="card-anim group bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-lg hover:shadow-slate-900/[0.06] hover:border-[#00B259]/30 sm:hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex flex-col sm:flex-row sm:p-3 sm:gap-4"
     >
-      <div className="w-20 h-20 md:w-24 md:h-24 bg-slate-50 relative flex-shrink-0 rounded-xl overflow-hidden border border-slate-100">
+      <div className="relative w-full aspect-[4/3] sm:aspect-auto sm:w-24 sm:h-24 bg-slate-50 flex-shrink-0 sm:rounded-xl overflow-hidden border-b sm:border border-slate-100">
         {shop.thumbnail ? (
           <img
             src={shop.thumbnail}
@@ -91,22 +80,28 @@ const ShopCard = memo(function ShopCard({ shop, index }) {
           </div>
         )}
         <div className="absolute inset-0 ring-1 ring-inset ring-black/5" />
+        <span className={`sm:hidden absolute top-2 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wide border backdrop-blur-sm ${
+          shop.isActive ? "bg-emerald-50/90 text-emerald-700 border-emerald-100" : "bg-rose-50/90 text-rose-600 border-rose-100"
+        }`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${shop.isActive ? "bg-emerald-500 motion-safe:animate-pulse" : "bg-rose-400"}`} />
+          {shop.isActive ? "Open" : "Closed"}
+        </span>
       </div>
-      <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
+      <div className="flex-1 flex flex-col justify-between p-2.5 sm:p-0 sm:py-0.5 min-w-0">
         <div>
-          <h4 className="font-bold text-slate-800 text-xs md:text-base group-hover:text-[#00B259] transition-colors line-clamp-1">
+          <h4 className="font-bold text-slate-800 text-[13px] sm:text-base group-hover:text-[#00B259] transition-colors line-clamp-1">
             {shop.name}
           </h4>
-          <p className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{shop.category}</p>
+          <p className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 line-clamp-1">{shop.category}</p>
           {shop.distance != null && (
-            <p className="text-[11px] md:text-xs font-bold text-[#00B259] flex items-center gap-1 mt-1.5 bg-emerald-50/60 px-2 py-0.5 rounded-md w-fit">
+            <p className="text-[10px] md:text-xs font-bold text-[#00B259] flex items-center gap-1 mt-1.5 bg-emerald-50/60 px-1.5 md:px-2 py-0.5 rounded-md w-fit">
               <PinIcon className="w-2.5 h-2.5 md:w-3 md:h-3 flex-shrink-0" />
-              {shop.distance.toFixed(1)} km away
+              {shop.distance.toFixed(1)} km
             </p>
           )}
         </div>
-        <div className="flex justify-between items-center text-xs mt-1.5 pt-1.5 border-t border-slate-50">
-          <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] md:text-[11px] font-bold tracking-wide border ${
+        <div className="hidden sm:flex justify-between items-center text-xs mt-1.5 pt-1.5 border-t border-slate-50">
+          <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold tracking-wide border ${
             shop.isActive ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-rose-50 text-rose-600 border-rose-100"
           }`}>
             <span className={`w-1.5 h-1.5 rounded-full ${shop.isActive ? "bg-emerald-500 motion-safe:animate-pulse" : "bg-rose-400"}`} />
@@ -121,24 +116,22 @@ const ShopCard = memo(function ShopCard({ shop, index }) {
   );
 });
 
-/* ═══════════════════════════════════ skeleton ═══════════════════════════════════ */
 const ShopCardSkeleton = memo(function ShopCardSkeleton() {
   return (
-    <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden flex p-3 gap-4 animate-pulse">
-      <div className="w-20 h-20 md:w-24 md:h-24 bg-slate-100 rounded-xl flex-shrink-0" />
-      <div className="flex-1 flex flex-col justify-between py-0.5">
+    <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden flex flex-col sm:flex-row sm:p-3 sm:gap-4 animate-pulse">
+      <div className="w-full aspect-[4/3] sm:aspect-auto sm:w-24 sm:h-24 bg-slate-100 sm:rounded-xl flex-shrink-0" />
+      <div className="flex-1 flex flex-col justify-between gap-2 p-2.5 sm:p-0 sm:py-0.5">
         <div className="space-y-2">
           <div className="h-3 bg-slate-100 rounded-full w-3/4" />
           <div className="h-2 bg-slate-100 rounded-full w-1/3" />
           <div className="h-2.5 bg-slate-100 rounded-full w-1/2" />
         </div>
-        <div className="h-4 bg-slate-100 rounded-full w-1/3" />
+        <div className="hidden sm:block h-4 bg-slate-100 rounded-full w-1/3" />
       </div>
     </div>
   );
 });
 
-/* ═══════════════════════════════════ main content ═══════════════════════════════════ */
 function ShopsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -156,9 +149,6 @@ function ShopsContent() {
   const [searching, setSearching] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
-  // session-only response cache + in-flight request guard, so switching
-  // between categories/subcategories you've already seen is instant and
-  // rapid changes don't pile up redundant network requests.
   const cacheRef = useRef(new Map());
   const abortRef = useRef(null);
 
@@ -178,8 +168,6 @@ function ShopsContent() {
       return;
     }
 
-    // cancel any in-flight request before starting a new one, so a slow
-    // earlier response can never overwrite a newer one
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -213,8 +201,6 @@ function ShopsContent() {
     }
   }, [lat, lng, radius, currentCategory, currentSubcategory]);
 
-  // single source of truth for fetching: category/subcategory changes flow
-  // through here only, so a filter change never fires two requests at once
   useEffect(() => {
     fetchShops();
   }, [lat, lng, currentCategory, currentSubcategory]);
@@ -230,7 +216,6 @@ function ShopsContent() {
     if (subcat) params.append("subcategory", subcat);
 
     router.replace(`/shops?${params.toString()}`, { scroll: false });
-    // fetchShops runs automatically from the effect above once state updates
   };
 
   const radiusPercent = Math.min(100, Math.max(0, ((radius - 1) / (500 - 1)) * 100));
@@ -240,7 +225,6 @@ function ShopsContent() {
   return (
     <div className="min-h-screen bg-[#F6F8F6] text-slate-800 antialiased flex flex-col">
 
-      {/* ── HEADER ── */}
       <header className="bg-white/90 backdrop-blur-xl border-b border-slate-100 px-4 py-3 sticky top-0 z-40 md:px-6 md:py-4">
         <div className="max-w-7xl mx-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
 
@@ -260,7 +244,6 @@ function ShopsContent() {
               </h1>
             </div>
 
-            {/* Mobile List/Map segmented toggle — opens the same map used on desktop */}
             <div className="sm:hidden flex-shrink-0 bg-slate-50 border border-slate-100 rounded-xl p-0.5 flex" role="tablist" aria-label="View mode">
               <button
                 onClick={() => setShowMap(false)}
@@ -270,18 +253,9 @@ function ShopsContent() {
               >
                 <ListIcon className="w-3 h-3" /> List
               </button>
-              <button
-                onClick={() => setShowMap(true)}
-                disabled={!currentCategory}
-                aria-pressed={showMap}
-                className={`flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-[10px] transition-all disabled:opacity-30 ${showMap ? "bg-slate-900 text-white shadow-sm" : "text-slate-500"}`}
-              >
-                <MapIcon className="w-3 h-3" /> Map
-              </button>
             </div>
           </div>
 
-          {/* Desktop title + result count */}
           <div className="hidden sm:block flex-1 min-w-0">
             <h1 className="text-sm font-black tracking-tight text-slate-900 truncate">
               {catMeta ? `${catMeta.icon ? catMeta.icon + " " : ""}${catMeta.label}` : "Shops Near Me"}
@@ -324,35 +298,18 @@ function ShopsContent() {
               </div>
             )}
           </div>
-
-          <button
-            onClick={() => setShowMap(!showMap)}
-            disabled={!currentCategory}
-            className={`hidden sm:flex text-xs font-bold px-4 py-2.5 rounded-xl items-center gap-2 transition-all duration-300 border disabled:opacity-30 disabled:pointer-events-none flex-shrink-0 ${
-              showMap
-                ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-950/10"
-                : "bg-white text-[#00B259] border-slate-200 hover:border-emerald-300 shadow-sm"
-            }`}
-          >
-            {showMap ? (<><ListIcon className="w-3.5 h-3.5" /> Show directory</>) : (<><MapIcon className="w-3.5 h-3.5" /> View on map</>)}
-          </button>
         </div>
       </header>
 
-      {/* thin signature accent line */}
       <div className="h-[2px] w-full bg-gradient-to-r from-[#00B259] via-emerald-300 to-transparent opacity-60" />
 
-      {/* ── MAIN WORKSPACE ── */}
       <main className="max-w-7xl mx-auto p-4 flex gap-6 h-[calc(100vh-127px)] md:h-[calc(100vh-84px)] overflow-hidden w-full flex-1 min-h-0">
 
-        {/* DESKTOP VERTICAL DISTANCE DIAL */}
         {currentCategory && (
           <section className="hidden lg:flex flex-col items-center justify-between bg-white px-4 py-6 rounded-2xl border border-slate-100 shadow-sm h-full w-[88px] shrink-0">
             <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider text-center [writing-mode:vertical-lr] rotate-180">
               Search radius
             </span>
-            {/* standard horizontal range, rotated — robust across every browser, unlike the
-                non-standard -webkit-appearance:slider-vertical (Firefox never supported it) */}
             <div className="flex-1 my-6 flex items-center justify-center w-full">
               <input
                 type="range" min="1" max="500" value={radius}
@@ -375,35 +332,44 @@ function ShopsContent() {
           </section>
         )}
 
-        {/* CONTAINER FOR CONTENT / MAP */}
         <section className="flex-1 flex gap-6 h-full overflow-hidden w-full relative min-h-0">
 
-          {/* DIRECTORY LIST */}
-          <div className={`flex flex-col gap-4 h-full min-h-0 transition-all duration-500 w-full ${showMap ? "lg:w-[45%] hidden lg:flex" : "flex"}`}>
+          <div className={`flex-col gap-4 h-full min-h-0 transition-all duration-500 w-full ${showMap ? "hidden lg:flex lg:w-[45%]" : "flex"}`}>
 
-            {/* Mobile distance card */}
             {currentCategory && (
-              <div className="lg:hidden bg-white p-3.5 rounded-xl border border-slate-100 shadow-sm space-y-2.5 flex-shrink-0">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] uppercase font-bold text-[#00B259] tracking-wider">Search radius</span>
-                  <span className="text-xs  font-bold text-slate-600 bg-slate-50 px-2 py-0.5 rounded-md">{radius} km</span>
+              <div className="lg:hidden bg-white px-3.5 pt-6 pb-3.5 rounded-2xl border border-slate-100 shadow-sm flex-shrink-0">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[10px] uppercase font-black text-[#00B259] tracking-wider flex items-center gap-1.5">
+                    <CompassIcon className="w-3 h-3" /> Search radius
+                  </span>
+                  <span className="text-[11px] font-black text-slate-700 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-md">
+                    up to {radius} km
+                  </span>
                 </div>
-                <div className="flex gap-3 items-center">
-                  <input
-                    type="range" min="1" max="30" value={radius}
-                    onChange={(e) => setRadius(Number(e.target.value))}
-                    aria-label="Search radius in kilometers"
-                    className="flex-1 accent-[#00B259] h-1.5 rounded-full"
-                    style={{ background: `linear-gradient(to right, #00B259 0%, #00B259 ${radiusPercent}%, #e2e8f0 ${radiusPercent}%, #e2e8f0 100%)` }}
-                  />
-                  <button onClick={() => fetchShops()} disabled={searching} className="bg-[#00B259] hover:bg-[#009c4c] text-white font-bold text-xs px-4 py-1.5 rounded-lg disabled:opacity-50 transition-colors flex-shrink-0">
+                <div className="flex gap-3 items-center pt-4">
+                  <div className="relative flex-1">
+                    <div
+                      className="absolute -top-6 -translate-x-1/2 text-[10px] font-black text-white bg-slate-900 px-1.5 py-0.5 rounded-md shadow-sm pointer-events-none whitespace-nowrap"
+                      style={{ left: `clamp(14px, ${radiusPercent}%, calc(100% - 14px))` }}
+                    >
+                      {radius} km
+                      <span className="absolute left-1/2 -bottom-[3px] -translate-x-1/2 w-1.5 h-1.5 bg-slate-900 rotate-45" />
+                    </div>
+                    <input
+                      type="range" min="1" max="500" value={radius}
+                      onChange={(e) => setRadius(Number(e.target.value))}
+                      aria-label="Search radius in kilometers"
+                      className="w-full accent-[#00B259] h-1.5 rounded-full"
+                      style={{ background: `linear-gradient(to right, #00B259 0%, #00B259 ${radiusPercent}%, #e2e8f0 ${radiusPercent}%, #e2e8f0 100%)` }}
+                    />
+                  </div>
+                  <button onClick={() => fetchShops()} disabled={searching} className="bg-[#00B259] hover:bg-[#009c4c] active:scale-95 text-white font-bold text-xs px-4 py-1.5 rounded-lg disabled:opacity-50 transition-all flex-shrink-0 shadow-sm shadow-emerald-900/10">
                     {searching ? "…" : "Apply"}
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Active filters row (desktop, quick-clear chips) */}
             {currentCategory && (
               <div className="hidden lg:flex items-center gap-2 flex-wrap flex-shrink-0">
                 <span className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full">
@@ -423,7 +389,6 @@ function ShopsContent() {
               </div>
             )}
 
-            {/* Shop list */}
             <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-3 pb-6 custom-scrollbar">
               {!currentCategory ? (
                 <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-slate-200 p-6 max-w-xl mx-auto flex flex-col items-center justify-center shadow-sm my-auto">
@@ -436,7 +401,7 @@ function ShopsContent() {
                   </p>
                 </div>
               ) : searching && shops.length === 0 ? (
-                <div className={`grid grid-cols-1 gap-3 ${showMap ? "sm:grid-cols-1" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
+                <div className={`grid grid-cols-2 gap-3 ${showMap ? "sm:grid-cols-1" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
                   {Array.from({ length: 6 }).map((_, i) => <ShopCardSkeleton key={i} />)}
                 </div>
               ) : shops.length === 0 ? (
@@ -452,7 +417,7 @@ function ShopsContent() {
                   <p className="lg:hidden text-[11px] font-bold text-slate-400 px-1">
                     {shops.length} shop{shops.length !== 1 ? "s" : ""} found within {radius}km
                   </p>
-                  <div className={`grid grid-cols-1 gap-3 ${showMap ? "sm:grid-cols-1" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
+                  <div className={`grid grid-cols-2 gap-3 ${showMap ? "sm:grid-cols-1" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
                     {shops.map((shop, i) => (
                       <ShopCard key={shop._id} shop={shop} index={i} />
                     ))}
@@ -461,14 +426,6 @@ function ShopsContent() {
               )}
             </div>
           </div>
-
-          {/* DYNAMIC MAP VIEW — same component powers both mobile (full-screen overlay,
-              toggled via the List/Map pill above) and desktop (side-by-side panel) */}
-          {showMap && currentCategory && (
-            <div className="absolute inset-0 lg:static flex-1 h-full min-h-0 rounded-2xl overflow-hidden border border-slate-200/80 bg-white shadow-lg shadow-slate-900/5 z-30 transition-all duration-500">
-              <MapView userLoc={lat ? [Number(lat), Number(lng)] : null} shops={shops} onShopClick={(id) => router.push(`/shop/${id}`)} />
-            </div>
-          )}
 
         </section>
       </main>
@@ -481,8 +438,15 @@ function ShopsContent() {
           from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        .map-anim {
+          animation: mapPanelIn 0.35s ease;
+        }
+        @keyframes mapPanelIn {
+          from { opacity: 0; transform: scale(0.98); }
+          to { opacity: 1; transform: scale(1); }
+        }
         @media (prefers-reduced-motion: reduce) {
-          .card-anim { animation: none !important; }
+          .card-anim, .map-anim { animation: none !important; }
         }
       `}</style>
     </div>

@@ -23,16 +23,14 @@ function CustomerHomeInner({ user }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  console.log("User name : " , user.name)
 
   const [loc, setLoc] = useState({ lat: null, lng: null });
   const [locErr, setLocErr] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // NEW: active tab now comes from the URL (?tab=cart), not just local state.
-  // This is what makes it survive a page refresh.
   const [activeNav, setActiveNav] = useState(searchParams.get("tab") || "home");
 
-  // Keep activeNav in sync if the URL changes from outside (e.g. browser back/forward)
   useEffect(() => {
     setActiveNav(searchParams.get("tab") || "home");
   }, [searchParams]);
@@ -114,8 +112,6 @@ function CustomerHomeInner({ user }) {
     router.push(`/shops?${params.toString()}`);
   };
 
-  // NEW: this is what nav clicks call now — updates local state immediately
-  // AND writes ?tab=... into the URL so a refresh reopens the same tab.
   const handleNavSelect = (id) => {
     setActiveNav(id);
     const params = new URLSearchParams(searchParams.toString());
@@ -127,13 +123,8 @@ function CustomerHomeInner({ user }) {
 
   return (
     <div className="min-h-screen bg-[#F4F6F4] text-gray-900 pb-20 md:pb-0 font-sans antialiased">
-
-      {/* ══════════════════════════════════
-          DESKTOP SIDEBAR — fixed left, always visible
-      ══════════════════════════════════ */}
       <aside className="hidden md:flex flex-col fixed left-0 top-0 h-full w-60 bg-white border-r border-gray-100 z-40 py-7 px-4">
 
-        {/* Logo */}
         <div className="flex items-center gap-2.5 mb-8 px-2">
           <div className="w-8 h-8 rounded-lg bg-[#00B259] flex items-center justify-center shadow-sm flex-shrink-0">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -144,20 +135,6 @@ function CustomerHomeInner({ user }) {
           <span className="text-base font-black tracking-tight text-gray-900">LocalMart</span>
         </div>
 
-        {/* User card */}
-        {/* <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 mb-7 border border-gray-100">
-          <div className="w-9 h-9 rounded-lg bg-[#00B259] flex items-center justify-center font-black text-white text-sm overflow-hidden flex-shrink-0">
-           
-               <img src={user.image} alt="user" className="w-full h-full object-cover" />
-            
-          </div>
-          <div className="min-w-0">
-            <p className="font-bold text-gray-900 text-sm truncate leading-tight">{user?.name || "Nivedha"}</p>
-            <p className="text-[11px] text-gray-400 truncate">Nearby delivery</p>
-          </div>
-        </div> */}
-
-        {/* Nav — now switches tabs instead of navigating */}
         <nav className="flex flex-col gap-1 flex-1">
           {NAV_LINKS.map((item) => {
             const isActive = activeNav === item.id;
@@ -177,7 +154,6 @@ function CustomerHomeInner({ user }) {
           })}
         </nav>
 
-        {/* Notifications — kept as a real navigation since it's not a bottom-nav tab */}
         <button
           onClick={() => router.push("/notifications")}
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-all w-full text-left mt-3 border-t border-gray-100 pt-4"
@@ -193,21 +169,15 @@ function CustomerHomeInner({ user }) {
         </button>
       </aside>
 
-      {/* ══════════════════════════════════
-          MAIN CONTENT — offset by sidebar
-      ══════════════════════════════════ */}
       <div className="md:ml-60 flex flex-col min-h-screen">
 
-        {/* Top bars only make sense for the Home tab — other tabs (Cart/Orders/etc.)
-            already carry their own header. Hide these on non-home tabs to avoid
-            double headers. */}
+
         {isHome && (
           <>
-            {/* ── DESKTOP TOP BAR ── */}
             <header className="hidden md:flex sticky top-0 z-30 bg-white border-b border-gray-100 px-8 py-3.5 items-center justify-between">
               <div>
-                <p className="text-xs text-gray-400 font-medium">Good morning,</p>
-                <h2 className="text-sm font-black text-gray-900 leading-tight">{user?.name || "Nivedha"} 👋</h2>
+                <p className="text-xs text-gray-400 font-medium">Hello,</p>
+                <h2 className="text-sm font-black text-gray-900 leading-tight"> 👋</h2>
               </div>
               <div className="flex items-center gap-2.5">
                 <button className="relative w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">
@@ -220,7 +190,6 @@ function CustomerHomeInner({ user }) {
               </div>
             </header>
 
-            {/* ── MOBILE TOP BAR ── */}
             <header className="md:hidden sticky top-0 z-30 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-[#00B259] flex items-center justify-center flex-shrink-0">
@@ -245,15 +214,8 @@ function CustomerHomeInner({ user }) {
           </>
         )}
 
-        {/* ══════════════════════════════════
-            TAB CONTENT — swaps based on activeNav
-        ══════════════════════════════════ */}
         {isHome && (
           <main className="flex-1 px-4 md:px-8 py-5 md:py-7 space-y-7">
-
-            {/* ══════════════════════════════════
-                HERO BANNER
-            ══════════════════════════════════ */}
             <section
               className="relative w-full rounded-2xl overflow-hidden cursor-pointer"
               style={{ height: "clamp(180px, 30vw, 340px)" }}
@@ -308,10 +270,6 @@ function CustomerHomeInner({ user }) {
                 ))}
               </div>
             </section>
-
-            {/* ══════════════════════════════════
-                QUICK PICKS
-            ══════════════════════════════════ */}
             <section className="space-y-3.5">
               <div className="flex items-center justify-between">
                 <div>
@@ -346,9 +304,6 @@ function CustomerHomeInner({ user }) {
               </div>
             </section>
 
-            {/* ══════════════════════════════════
-                EXPLORE CATEGORIES
-            ══════════════════════════════════ */}
             <section className="space-y-3.5">
               <div className="flex items-center justify-between">
                 <div>
@@ -384,17 +339,11 @@ function CustomerHomeInner({ user }) {
           </main>
         )}
 
-        {/* Other tabs render their existing page components directly —
-            each one manages its own layout/header internally. */}
         {activeNav === "cart" && <CartPage />}
         {activeNav === "orders" && <OrdersPage />}
         {activeNav === "favourite" && <SavedShopsPage />}
         {activeNav === "profile" && <ProfilePage />}
       </div>
-
-      {/* ══════════════════════════════════
-          MOBILE BOTTOM NAV — always visible, switches tabs
-      ══════════════════════════════════ */}
       <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 px-2 pt-2 pb-safe md:hidden shadow-[0_-1px_12px_rgba(0,0,0,0.06)]">
         <nav className="flex items-center justify-around max-w-md mx-auto pb-1">
           {NAV_LINKS.map((navItem) => {

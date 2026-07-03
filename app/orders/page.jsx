@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-/* ----------------------------- Status config ---------------------------- */
 const STATUS_CONFIG = {
   placed:    { label: 'Order Placed', dot: '#3b82f6', text: 'text-blue-600',   bg: 'bg-blue-50',   border: 'border-blue-200',   step: 0 },
   confirmed: { label: 'Confirmed',    dot: '#d97706', text: 'text-amber-600',  bg: 'bg-amber-50',  border: 'border-amber-200',  step: 1 },
@@ -23,7 +22,6 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-/* ------------------------------ Order card ------------------------------ */
 const OrderCard = ({ order, onClick }) => {
   const itemPreview = order.items.slice(0, 4);
   const extraCount = order.items.length - 4;
@@ -38,7 +36,6 @@ const OrderCard = ({ order, onClick }) => {
                  hover:shadow-[0_8px_24px_-8px_rgba(22,163,74,0.18)]
                  focus:outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a]/40"
     >
-      {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="min-w-0">
           <h3 className="text-[#0f1f13] text-sm sm:text-[15px] font-bold tracking-tight truncate">{shortId}</h3>
@@ -49,7 +46,6 @@ const OrderCard = ({ order, onClick }) => {
         <StatusBadge status={order.status} />
       </div>
 
-      {/* Item Images Preview */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex -space-x-2.5 sm:space-x-0 sm:gap-2">
           {itemPreview.map((item, idx) => (
@@ -77,7 +73,6 @@ const OrderCard = ({ order, onClick }) => {
         </div>
       </div>
 
-      {/* Footer */}
       <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-[#e3ece4]">
         <div className="flex items-center gap-2 min-w-0">
           <div
@@ -99,7 +94,6 @@ const OrderCard = ({ order, onClick }) => {
   );
 };
 
-/* ------------------------------ Skeleton --------------------------------- */
 const OrderCardSkeleton = () => (
   <div className="bg-white border border-[#e3ece4] rounded-2xl p-4 sm:p-5 animate-pulse">
     <div className="flex items-start justify-between mb-4">
@@ -119,7 +113,6 @@ const OrderCardSkeleton = () => (
   </div>
 );
 
-/* -------------------------------- Page ----------------------------------- */
 export default function OrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState([]);
@@ -167,7 +160,6 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-[#f7faf7] text-[#0f1f13] font-sans pb-24 selection:bg-[#16a34a]/20">
-      {/* Header */}
       <header className="sticky top-0 z-40 bg-[#f7faf7]/90 backdrop-blur-md border-b border-[#e3ece4]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-5 flex items-center gap-4">
           <div className="min-w-0">
@@ -187,7 +179,6 @@ export default function OrdersPage() {
           )}
         </div>
 
-        {/* Filter Pills */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-4 flex gap-2 overflow-x-auto scrollbar-none">
           {filters.map(f => {
             const count = f.key === 'all' ? orders.length : (counts[f.key] || 0);
@@ -215,7 +206,6 @@ export default function OrdersPage() {
         </div>
       </header>
 
-      {/* Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 mt-5">
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">

@@ -13,13 +13,12 @@ export async function POST(req) {
  console.log("The id of shop :" ,shopId )
     await connectToDatabase();
 
-    // ऑर्डर का बेसिक डेटा तैयार करें
     const orderData = {
       customer: user.id,
       shop : shopId,
       items: items.map(i => ({
         itemId: i.itemId,
-        shop: i.shopId || i.shop, // सुनिश्चित करें कि यहाँ shop की ID सही से मैप हो रही हो
+        shop: i.shopId || i.shop, 
         name: i.name,
         price: i.price,
         quantity: i.quantity,
@@ -32,7 +31,6 @@ export async function POST(req) {
       status: 'placed',
     };
 
-    // अगर यह सिंगल शॉप का ऑर्डर है, तो टॉप-लेवल shop भी सेट कर दें (बैकवर्ड कम्पैटिबिलिटी के लिए)
     if (!isAll && shopId) {
       orderData.shop = shopId;
     }
@@ -44,12 +42,9 @@ export async function POST(req) {
 
     const order = await Order.create(orderData);
 
-    // कार्ट को साफ करना: 
     if (isAll) {
-      // अगर 'Checkout All' किया है तो पूरी कार्ट खाली कर दें
       await Cart.findOneAndUpdate({ user: user.id }, { $set: { items: [] } });
     } else {
-      // अगर किसी एक स्पेसिफिक शॉप का ऑर्डर किया है, तो सिर्फ उस शॉप के आइटम्स को कार्ट से हटाएं
       await Cart.findOneAndUpdate(
         { user: user.id },
         { $pull: { items: { shopId: shopId } } }

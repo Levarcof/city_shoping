@@ -1,4 +1,3 @@
-// ── Category definitions with emoji icons ─────────────────────────────────
 export const SHOP_CATEGORIES = {
   khaana_grocery:       { label: "Grocery & Food",        icon: "🛒", subcategories: ["kirana","sabzi_fruit","dairy","meat_chicken","bakery","sweet_mithai","dry_fruits","namkeen_snacks","tea_coffee","cold_drinks_juice"] },
   kapde_fashion:        { label: "Fashion & Wear",         icon: "👗", subcategories: ["general_kapde","saree","readymade_garments","kids_wear","footwear","jewellery","artificial_jewellery","bags_purse","sportswear"] },

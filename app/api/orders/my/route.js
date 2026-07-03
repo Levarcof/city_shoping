@@ -21,10 +21,6 @@ export async function GET(req) {
     await connectToDatabase();
 
     let orders = [];
-
-    // ===========================
-    // Customer Orders
-    // ===========================
     if (user.role !== "shop_owner") {
       orders = await Order.find({
         customer: user.id,
@@ -34,9 +30,6 @@ export async function GET(req) {
         .sort({ createdAt: -1 });
     }
 
-    // ===========================
-    // Shop Owner Orders
-    // ===========================
     else {
       const shop = await Shop.findOne({
         owner: user.id,

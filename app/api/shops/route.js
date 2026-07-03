@@ -21,12 +21,10 @@ export async function GET(req) {
       isActive: true,
     };
 
-    // Category required
     if (category && category !== "All categories") {
       query.category = category;
     }
 
-    // Subcategory OPTIONAL
     if (
       subcategory &&
       subcategory.trim() !== "" &&
@@ -36,14 +34,12 @@ export async function GET(req) {
       query.subcategories = subcategory;
     }
 
-    // Search OPTIONAL
     if (search && search.trim() !== "") {
       query.$text = {
         $search: search,
       };
     }
 
-    // Geo Search
     if (!isNaN(lat) && !isNaN(lng) && !isNaN(radius)) {
       query.location = {
         $near: {

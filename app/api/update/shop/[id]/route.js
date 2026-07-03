@@ -1,5 +1,3 @@
-// PATH: /app/api/update/shop/[id]/route.js
-
 import connectToDatabase from '@/app/lib/db';
 import Shop from '@/app/models/Shop';
 import { NextResponse } from 'next/server';
@@ -11,7 +9,6 @@ async function updateShopHandler(req, context) {
     const { id } = await context.params;
     const body   = await req.json();
 
-    // ── Sensitive fields jo kabhi update nahi hone chahiye ──────────────────
     delete body.owner;
     delete body.isVerified;
     delete body.isActive;
@@ -22,7 +19,6 @@ async function updateShopHandler(req, context) {
     delete body.__v;
     delete body.createdAt;
 
-    // ── Validate: name required ─────────────────────────────────────────────
     if (!body.name || !body.name.trim()) {
       return NextResponse.json(
         { success: false, message: "Shop name required hai" },
@@ -30,7 +26,6 @@ async function updateShopHandler(req, context) {
       );
     }
 
-    // ── Location: coordinates preserve karo ────────────────────────────────
     if (body.location) {
       const existingShop = await Shop.findById(id).select('location');
       if (existingShop?.location?.coordinates) {
@@ -39,12 +34,6 @@ async function updateShopHandler(req, context) {
       }
     }
 
-    // ── Images / thumbnail: explicitly allow these fields ──────────────────
-    // (body.images aur body.thumbnail already $set me chale jayenge,
-    // koi extra handling ki zaroorat nahi — bas confirm kar rahe hain ki
-    // delete na ho gaye ho upar)
-
-    // ── Update shop ─────────────────────────────────────────────────────────
     const updatedShop = await Shop.findByIdAndUpdate(
       id,
       { $set: body },

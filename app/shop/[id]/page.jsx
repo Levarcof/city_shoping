@@ -9,7 +9,6 @@ const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 const FALLBACK_IMG =
   "https://www.backdropsandfloors.com/assets/images/Serene_Seeds_Flower_Shop_LB_Jessica_Ruth_Photography.jpg";
 
-/* ─── SVG Icons ──────────────────────────────────────────────────────────── */
 const IC = {
   Back: () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -76,7 +75,6 @@ const IC = {
   ),
 };
 
-/* ─── Main Page ──────────────────────────────────────────────────────────── */
 export default function ShopDetailPage() {
   const router = useRouter();
   const { id } = useParams();
@@ -109,10 +107,6 @@ export default function ShopDetailPage() {
     finally { setLoading(false); }
   };
 
-  // Once the shop loads, check whether it's already in the logged-in user's savedShops
-  // by reading the current user. Defensive against a few common response shapes
-  // (user.savedShops / data.savedShops / nested data.user) and against savedShops
-  // containing either raw ids or populated shop objects.
   useEffect(() => {
     if (!shop?._id) return;
     let cancelled = false;
@@ -128,8 +122,6 @@ export default function ShopDetailPage() {
         }
 
         const data = await res.json();
-        // TEMP DEBUG: uncomment while wiring this up, remove once confirmed working
-        // console.log("[wishlist] /api/user/me response:", data);
 
         const userObj = data.user ?? data.data?.user ?? data.data ?? data;
         const savedList = userObj?.savedShops ?? [];
@@ -154,7 +146,6 @@ export default function ShopDetailPage() {
 
     const nextState = !wishlisted;
 
-    // optimistic update + pop animation
     setWishlisted(nextState);
     setHeartPop(true);
     setTimeout(() => setHeartPop(false), 280);
@@ -178,7 +169,7 @@ export default function ShopDetailPage() {
       }
     } catch (e) {
       console.error(e);
-      setWishlisted(!nextState); // revert on failure
+      setWishlisted(!nextState); 
       toast$("Something went wrong");
     } finally {
       setSavingWishlist(false);
@@ -212,7 +203,6 @@ export default function ShopDetailPage() {
     );
   }, [shop?.items, filter]);
 
-  /* Loading */
   if (loading) return (
     <div style={S.page}>
       <div style={S.spinWrap}>
@@ -235,7 +225,6 @@ export default function ShopDetailPage() {
   const tel = `tel:${shop.phone}`;
   const wa = `https://wa.me/${shop.whatsapp?.replace(/[^0-9]/g, "")}`;
 
-  // Supports a `shop.images` array (recommended) and falls back to the single thumbnail.
   const galleryImages = shop.images?.length ? shop.images : (shop.thumbnail ? [shop.thumbnail] : [FALLBACK_IMG]);
   const hasMultipleImages = galleryImages.length > 1;
 
@@ -249,7 +238,6 @@ export default function ShopDetailPage() {
 
   return (
     <div style={S.page}>
-      {/* ── CSS resets & utilities */}
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         body{background:#f7f9f7}
@@ -324,7 +312,6 @@ export default function ShopDetailPage() {
         .heart-btn:active{transform:scale(.9)}
       `}</style>
 
-      {/* ── Toast ── */}
       {toast && (
         <div style={{
           position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)",
@@ -341,7 +328,6 @@ export default function ShopDetailPage() {
         </div>
       )}
 
-      {/* ── HEADER (stylish brand navbar) ── */}
       <header style={S.header}>
         <div className="container header-row" style={S.headerInner}>
           <button onClick={() => router.back()} style={S.iconBtn} aria-label="Back">
@@ -369,7 +355,6 @@ export default function ShopDetailPage() {
         </div>
       </header>
 
-      {/* ── HERO IMAGE GALLERY ── */}
       <div className="hero-main" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <img
           src={galleryImages[activeImg]}
@@ -401,7 +386,6 @@ export default function ShopDetailPage() {
         )}
       </div>
 
-      {/* ── THUMBNAIL STRIP (shows every photo) ── */}
       {hasMultipleImages && (
         <div style={S.galleryPanel}>
           <div className="thumb-strip">
@@ -419,7 +403,6 @@ export default function ShopDetailPage() {
         </div>
       )}
 
-      {/* ── TAB BAR ── */}
       <div style={S.tabBar}>
         <div className="container header-row" style={S.tabInner}>
           {["Products", "About", "Location"].map(t => (
@@ -435,13 +418,10 @@ export default function ShopDetailPage() {
         </div>
       </div>
 
-      {/* ── CONTENT ── */}
       <main className="container main-pad">
 
-        {/* ════ PRODUCTS ════ */}
         {activeTab === "Products" && (
           <div className="tab-panel">
-            {/* Filter chips */}
             {shop.subcategories?.length > 0 && (
               <div style={S.chipRow}>
                 <button onClick={() => setFilter("")} className={!filter ? "chip-active" : "chip-idle"} style={S.chip}>
@@ -455,10 +435,8 @@ export default function ShopDetailPage() {
               </div>
             )}
 
-            {/* Count */}
             <p style={S.countLabel}>{items?.length || 0} item{items?.length !== 1 ? "s" : ""}</p>
 
-            {/* Grid — uses full container width, no more desktop centering */}
             <div className="prod-grid">
               {items?.map(item => {
                 const hasDiscount = item.mrp && item.mrp > item.price;
@@ -470,7 +448,6 @@ export default function ShopDetailPage() {
                     className="card-hover prod-card"
                     style={S.prodCard}
                   >
-                    {/* Image — object-fit:contain so the full product is always visible */}
                     <div style={S.prodImgWrap}>
                       {item.image
                         ? <img src={item.image} alt={item.name} className="prod-img" style={S.prodImg} loading="lazy" decoding="async" />
@@ -485,7 +462,6 @@ export default function ShopDetailPage() {
                         {item.inStock ? "In Stock" : "Sold Out"}
                       </span>
                     </div>
-                    {/* Info */}
                     <div style={S.prodInfo}>
                       {item.category && <span style={S.prodCat}>{item.category.replace(/_/g, " ")}</span>}
                       <p style={S.prodName} className="line2">{item.name}</p>
@@ -515,7 +491,6 @@ export default function ShopDetailPage() {
               })}
             </div>
 
-            {/* Empty */}
             {(!items || items.length === 0) && (
               <div style={S.emptyState}>
                 <div style={{ fontSize: 44, lineHeight: 1 }}>📦</div>
@@ -526,11 +501,9 @@ export default function ShopDetailPage() {
           </div>
         )}
 
-        {/* ════ ABOUT ════ */}
         {activeTab === "About" && (
           <div className="tab-panel narrow-col">
 
-            {/* Description */}
             <div style={S.card}>
               <div style={S.cardHead}>
                 <IC.Info /><span>About {shop.name}</span>
@@ -540,7 +513,6 @@ export default function ShopDetailPage() {
               </p>
             </div>
 
-            {/* Details table */}
             <div style={S.card}>
               <div style={S.cardHead}><IC.Info /><span>Shop Details</span></div>
               <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -592,7 +564,6 @@ export default function ShopDetailPage() {
               </div>
             </div>
 
-            {/* CTA buttons */}
             <div style={{ display: "grid", gridTemplateColumns: shop.whatsapp ? "1fr 1fr" : "1fr", gap: 12 }}>
               <a href={tel} style={S.ctaGreen} className="btn-green">
                 <IC.Phone size={16} /> Call Now
@@ -606,7 +577,6 @@ export default function ShopDetailPage() {
           </div>
         )}
 
-        {/* ════ LOCATION ════ */}
         {activeTab === "Location" && (
           <div className="tab-panel narrow-col">
             <div style={{ ...S.card, flexDirection: "row", alignItems: "flex-start", gap: 14 }}>
@@ -643,7 +613,6 @@ export default function ShopDetailPage() {
   );
 }
 
-/* ─── Style tokens ────────────────────────────────────────────────────────── */
 const S = {
   page: {
     minHeight: "100vh",
@@ -655,7 +624,6 @@ const S = {
     paddingBottom: 80,
   },
 
-  /* Header */
   header: {
     position: "sticky",
     top: 0,
@@ -727,7 +695,6 @@ const S = {
     marginTop: 2,
   },
 
-  /* Hero */
   heroImg: {
     width: "100%",
     height: "100%",
@@ -792,7 +759,6 @@ const S = {
     padding: "12px 16px",
   },
 
-  /* Tabs */
   tabBar: {
     position: "sticky",
     top: 60,
@@ -819,7 +785,6 @@ const S = {
     justifyContent: "center",
   },
 
-  /* Filter chips */
   chipRow: {
     display: "flex",
     gap: 8,
@@ -848,7 +813,6 @@ const S = {
     marginBottom: 14,
   },
 
-  /* Product card */
   prodCard: {
     background: "#fff",
     border: "1.5px solid #e5e7eb",
@@ -963,7 +927,6 @@ const S = {
     textAlign: "center",
   },
 
-  /* Card (about/location) */
   card: {
     background: "#fff",
     border: "1.5px solid #e5e7eb",

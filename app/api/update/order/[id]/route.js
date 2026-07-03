@@ -1,7 +1,6 @@
-// File location: app/api/update/order/[id]/route.js
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/app/lib/db";   // adjust path to match your project
-import Order from "@/app/models/Order";        // adjust path to match your project
+import connectToDatabase from "@/app/lib/db";   
+import Order from "@/app/models/Order";        
 
 const VALID_STATUSES = ["pending", "confirmed", "preparing", "ready", "delivered", "cancelled"];
 const VALID_PAYMENT_STATUSES = ["pending", "paid", "failed", "refunded"];
@@ -45,7 +44,7 @@ export async function PATCH(req, context) {
     const updatedOrder = await Order.findByIdAndUpdate(
       id,
       { $set: updates },
-      { new: true } // return the document AFTER update
+      { new: true } 
     );
 
     if (!updatedOrder) {
@@ -65,7 +64,6 @@ export async function PATCH(req, context) {
   }
 }
 
-// Some setups call update endpoints with PUT instead of PATCH — support both.
 export async function PUT(req, ctx) {
   return PATCH(req, ctx);
 }

@@ -154,7 +154,6 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50/40 via-slate-50 to-slate-50 text-slate-800 font-sans antialiased pb-12">
 
-      {/* Toast */}
       {toast && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[60] bg-slate-900 text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-xl animate-[fadeIn_0.2s_ease]">
           {toast}
@@ -162,15 +161,8 @@ export default function ProfilePage() {
       )}
       <style>{`@keyframes fadeIn { from { opacity:0; transform:translate(-50%,-8px);} to {opacity:1; transform:translate(-50%,0);} }`}</style>
 
-      {/* Premium Header */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-emerald-100 px-4 py-4 md:px-8 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-4">
-          {/* <button
-            onClick={() => router.back()}
-            className="p-2 rounded-full hover:bg-emerald-50 text-emerald-600 transition-colors"
-          >
-            {Icon.back}
-          </button> */}
           <h1 className="font-bold text-xl text-slate-800 tracking-tight">Account Profile</h1>
         </div>
 
@@ -209,7 +201,6 @@ export default function ProfilePage() {
         </div>
       </header>
 
-      {/* Mobile edit bar */}
       <div className="sm:hidden sticky top-[68px] z-30 bg-white/90 backdrop-blur-md border-b border-emerald-50 px-4 py-2.5">
         {!editing ? (
           <button
@@ -242,7 +233,6 @@ export default function ProfilePage() {
 
       <main className="p-4 max-w-4xl mx-auto mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        {/* Left Column: Avatar & Quick Stats */}
         <div className="md:col-span-1 bg-white border border-emerald-100/80 rounded-2xl p-6 shadow-sm flex flex-col items-center text-center justify-between h-fit">
           <div className="w-full">
             <div className="relative w-28 h-28 mx-auto mb-4">
@@ -300,10 +290,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Right Column: Complete Info Forms/Details */}
         <div className="md:col-span-2 space-y-6">
 
-          {/* Section: Personal Information */}
           <div className="bg-white border border-emerald-100/80 rounded-2xl p-6 shadow-sm">
             <h3 className="text-sm font-bold text-emerald-700 uppercase tracking-wider mb-4 flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -321,7 +309,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Section: Address Details */}
           <div className="bg-white border border-emerald-100/80 rounded-2xl p-6 shadow-sm">
             <h3 className="text-sm font-bold text-emerald-700 uppercase tracking-wider mb-4 flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -359,7 +346,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Actions & Navigation Section */}
           <div className="space-y-3 pt-2">
             <button
               onClick={() => router.push('/orders')}

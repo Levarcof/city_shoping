@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-/* ─── helpers ─── */
 const formatCategory = (cat) =>
   cat ? cat.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : '';
 
@@ -21,10 +20,9 @@ const isShopOpenNow = (openTime, closeTime, closedOn = []) => {
 
   return closeMinutes > openMinutes
     ? nowMinutes >= openMinutes && nowMinutes < closeMinutes
-    : nowMinutes >= openMinutes || nowMinutes < closeMinutes; // handles overnight hours
+    : nowMinutes >= openMinutes || nowMinutes < closeMinutes; 
 };
 
-/* ─── icons ─── */
 const StarIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 20 20" fill="currentColor">
     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.447a1 1 0 00-1.176 0l-3.367 2.447c-.783.57-1.838-.196-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.958z" />
@@ -57,7 +55,6 @@ const ArrowRightIcon = ({ className }) => (
   </svg>
 );
 
-/* ─── shop card ─── */
 const ShopCard = ({ shop, onUnsave, removing, index }) => {
   const router = useRouter();
   const thumb = shop.thumbnail || shop.images?.[0];
@@ -72,7 +69,6 @@ const ShopCard = ({ shop, onUnsave, removing, index }) => {
                  shadow-[0_1px_2px_rgba(15,31,19,0.04)]
                  hover:shadow-[0_12px_28px_-10px_rgba(22,163,74,0.28)] hover:-translate-y-0.5"
     >
-      {/* Image */}
       <div className="relative aspect-[4/3] bg-[#eef5f0] overflow-hidden">
         {thumb ? (
           <img
@@ -86,10 +82,8 @@ const ShopCard = ({ shop, onUnsave, removing, index }) => {
           </div>
         )}
 
-        {/* bottom gradient wash for badge legibility */}
         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/35 to-transparent pointer-events-none" />
 
-        {/* Unsave button */}
         <button
           onClick={(e) => { e.stopPropagation(); onUnsave(shop._id); }}
           disabled={removing}
@@ -105,7 +99,6 @@ const ShopCard = ({ shop, onUnsave, removing, index }) => {
           )}
         </button>
 
-        {/* Verified badge */}
         {shop.isVerified && (
           <span className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 inline-flex items-center gap-1 pl-1 pr-2 py-1 rounded-full text-[8.5px] sm:text-[10px] font-bold
                             bg-gradient-to-r from-[#16a34a] to-[#15803d] text-white shadow-sm">
@@ -114,7 +107,6 @@ const ShopCard = ({ shop, onUnsave, removing, index }) => {
           </span>
         )}
 
-        {/* Open / closed pill */}
         {open !== null && (
           <span className={`absolute bottom-2 left-2 sm:bottom-2.5 sm:left-2.5 inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[8.5px] sm:text-[10px] font-bold backdrop-blur-sm ${
             open ? 'bg-white/95 text-[#15803d]' : 'bg-black/40 text-white'
@@ -125,7 +117,6 @@ const ShopCard = ({ shop, onUnsave, removing, index }) => {
         )}
       </div>
 
-      {/* Info */}
       <div className="p-2.5 sm:p-3.5 lg:p-4">
         <h3 className="font-bold text-[#0f1f13] text-[12.5px] sm:text-[14.5px] leading-snug line-clamp-2 min-h-[2.4em] sm:min-h-[2.2em]">
           {shop.name}
@@ -159,7 +150,6 @@ const ShopCard = ({ shop, onUnsave, removing, index }) => {
   );
 };
 
-/* ─── skeleton ─── */
 const CardSkeleton = () => (
   <div className="bg-white border border-[#e5ece6] rounded-2xl overflow-hidden animate-pulse">
     <div className="aspect-[4/3] bg-[#eef4ef]" />
@@ -171,10 +161,6 @@ const CardSkeleton = () => (
   </div>
 );
 
-/* ─── main component ─── */
-// Self-contained: fetches the logged-in user's saved shops on mount via
-// GET /api/savedShop/save, which returns savedShops populated with
-// (name, images/thumbnail, category, location, avgRating, totalRatings, isVerified, openTime, closeTime, closedOn).
 export default function SavedShopsPage() {
   const router = useRouter();
   const [savedShops, setSavedShops] = useState([]);
@@ -223,13 +209,13 @@ export default function SavedShopsPage() {
   const handleUnsave = async (shopId) => {
     setRemovingId(shopId);
     const prev = savedShops;
-    setSavedShops((cur) => cur.filter((s) => s._id !== shopId)); // optimistic update
+    setSavedShops((cur) => cur.filter((s) => s._id !== shopId)); 
 
     try {
       const res = await fetch(`/api/savedShop/delete/${shopId}`, { method: 'DELETE' });
       const data = await res.json();
       if (!data.success) {
-        setSavedShops(prev); // revert on failure
+        setSavedShops(prev); 
         showToast(data.message || 'Could not remove shop');
       } else {
         showToast('Removed from saved shops');
@@ -244,7 +230,6 @@ export default function SavedShopsPage() {
 
   return (
     <div className="min-h-screen bg-[#f7faf7] bg-[radial-gradient(circle_at_15%_0%,rgba(22,163,74,0.06),transparent_50%)] text-[#0f1f13] font-sans pb-16 selection:bg-[#16a34a]/20">
-      {/* Toast */}
       {toast && (
         <div className="toast-anim fixed top-5 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 bg-[#0f1f13] text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-xl">
           <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a]" />
@@ -252,7 +237,6 @@ export default function SavedShopsPage() {
         </div>
       )}
 
-      {/* Header */}
       <header className="sticky top-0 z-40 bg-[#f7faf7]/85 backdrop-blur-md border-b border-[#e5ece6]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center gap-3">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#16a34a] to-[#15803d] flex items-center justify-center shadow-[0_4px_12px_-4px_rgba(22,163,74,0.5)] shrink-0">

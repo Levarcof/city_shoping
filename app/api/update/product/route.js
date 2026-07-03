@@ -1,4 +1,3 @@
-// PATH: /app/api/update/product/route.js
 import connectToDatabase from '@/app/lib/db';
 import Shop from '@/app/models/Shop';
 import { NextResponse } from 'next/server';

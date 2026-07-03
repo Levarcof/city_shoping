@@ -13,7 +13,7 @@ export async function GET(req, context) {
       );
     }
 
-    const { id } = await context.params; // ✅ correct way
+    const { id } = await context.params;
 
     console.log("owner id:", id);
 
@@ -39,7 +39,6 @@ export async function GET(req, context) {
     }
     console.log(order?.shop)
 
-    // 🔒 security: only owner or customer can see order
     if (
       order.customer._id.toString() !== user.id &&
       user.role !== "shop_owner"

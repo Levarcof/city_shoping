@@ -12,7 +12,7 @@ export async function POST(req) {
       password,
       addresses,
       pincode,
-      image, // User Image
+      image, 
     } = await req.json()
 
     if (!name || !email || !phone || !password || !addresses || !pincode) {

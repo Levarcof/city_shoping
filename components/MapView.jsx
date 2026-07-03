@@ -7,9 +7,9 @@ import { useRouter } from 'next/navigation';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: '/leaflet/marker-icon-2x.png',
-  iconUrl: '/leaflet/marker-icon.png',
-  shadowUrl: '/leaflet/marker-shadow.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
 const userIcon = new L.DivIcon({
@@ -30,12 +30,39 @@ function ChangeView({ center, zoom }) {
   return null;
 }
 
-export default function MapView({ userLoc, shops = [], className = "h-[500px]" }) {
+// Leaflet measures its container's pixel size once, right when it mounts.
+// If that container is being toggled into view, sits inside a flex/absolute
+// layout, or is animating in (our mobile "Map" tab is all three), Leaflet
+// can grab a stale or zero size and render blank. This keeps it in sync.
+function MapResizeHandler() {
+  const map = useMap();
+  useEffect(() => {
+    const container = map.getContainer();
+    const invalidate = () => map.invalidateSize();
+
+    invalidate();
+    const raf = requestAnimationFrame(invalidate);
+    const settleTimer = setTimeout(invalidate, 350); // after our CSS entrance animation finishes
+
+    const observer = new ResizeObserver(invalidate);
+    observer.observe(container);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(settleTimer);
+      observer.disconnect();
+    };
+  }, [map]);
+  return null;
+}
+
+export default function MapView({ userLoc, shops = [], className = "h-full w-full", onShopClick }) {
   const router = useRouter();
   const center = userLoc || [28.6139, 77.2090];
+  const handleShopClick = (id) => (onShopClick ? onShopClick(id) : router.push(`/shop/${id}`));
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative w-full h-full ${className}`}>
       <style jsx global>{`
         .leaflet-popup-content-wrapper { background: #141415; border: 1px solid #1e1e20; color: white; border-radius: 12px; padding: 0; overflow: hidden; }
         .leaflet-popup-tip { background: #141415; border: 1px solid #1e1e20; }
@@ -44,6 +71,7 @@ export default function MapView({ userLoc, shops = [], className = "h-[500px]" }
       `}</style>
       <MapContainer center={center} zoom={userLoc ? 14 : 5} scrollWheelZoom={true} className="w-full h-full rounded-2xl z-0">
         <ChangeView center={center} zoom={userLoc ? 14 : 5} />
+        <MapResizeHandler />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -68,7 +96,7 @@ export default function MapView({ userLoc, shops = [], className = "h-[500px]" }
                   <h3 className="font-bold text-sm truncate">{shop.name}</h3>
                   <p className="text-xs text-zinc-400 mb-2">{shop.category}</p>
                   <button 
-                    onClick={() => router.push(`/shop/${shop._id}`)}
+                    onClick={() => handleShopClick(shop._id)}
                     className="w-full bg-[#6366f1] text-white text-xs font-semibold py-1.5 rounded-lg hover:bg-[#4f46e5] transition-colors"
                   >
                     View Shop →

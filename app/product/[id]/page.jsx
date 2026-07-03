@@ -2,7 +2,6 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 
-// useSearchParams must be inside a Suspense boundary — separated into inner component
 function ProductDetailInner() {
   const router = useRouter();
   const { id } = useParams();
@@ -15,7 +14,6 @@ function ProductDetailInner() {
   const [qty, setQty] = useState(1);
   const [toast, setToast] = useState('');
 
-  // Modal states
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [buyStep, setBuyStep] = useState(1);
   const [address, setAddress] = useState({ street: '', city: '', pincode: '' });
@@ -194,7 +192,6 @@ function ProductDetailInner() {
     }
   };
 
-  // ─── Loading ───
   if (loading) return (
     <div className="min-h-screen bg-[#FAFCFA] flex flex-col justify-center items-center gap-4">
       <div className="w-10 h-10 rounded-full border-[3px] border-green-100 border-t-[#00B259] animate-spin" />
@@ -229,7 +226,6 @@ function ProductDetailInner() {
   return (
     <div className="min-h-screen bg-[#FAFCFA] text-gray-900 font-sans pb-32">
 
-      {/* Toast */}
       {toast && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[60] bg-white border border-green-100 shadow-lg shadow-green-900/5 text-gray-700 text-sm font-semibold px-5 py-3 rounded-2xl flex items-center gap-2.5 whitespace-nowrap">
           <span className="w-5 h-5 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
@@ -241,7 +237,6 @@ function ProductDetailInner() {
         </div>
       )}
 
-      {/* Header */}
       <header className="sticky top-0 w-full z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 sm:px-6 py-3.5 flex justify-between items-center">
         <button
           onClick={() => router.back()}
@@ -264,7 +259,6 @@ function ProductDetailInner() {
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
 
-        {/* LEFT — image (sticky on desktop) */}
         <div className="lg:sticky lg:top-20 lg:self-start space-y-4">
           <div className="aspect-square w-full rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-sm">
             {product.image ? (
@@ -279,7 +273,6 @@ function ProductDetailInner() {
             )}
           </div>
 
-          {/* Shop card — desktop shows under image */}
           {shop && (
             <div
               onClick={() => router.push(`/shop/${shop._id}`)}
@@ -303,9 +296,7 @@ function ProductDetailInner() {
           )}
         </div>
 
-        {/* RIGHT — details */}
         <div className="space-y-4">
-          {/* Product info */}
           <div className="bg-white border border-gray-100 rounded-3xl p-5 sm:p-6 shadow-sm shadow-gray-900/[0.02]">
             <div className="flex justify-between items-start gap-3 mb-3">
               <h1 className="text-xl sm:text-2xl font-black leading-tight text-gray-900 flex-1">{product.name}</h1>
@@ -324,7 +315,6 @@ function ProductDetailInner() {
             )}
           </div>
 
-          {/* Quantity */}
           <div className="bg-white border border-gray-100 rounded-3xl p-5 sm:p-6 flex items-center justify-between shadow-sm shadow-gray-900/[0.02]">
             <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Quantity</p>
             <div className="flex items-center gap-1 bg-gray-50 border border-gray-100 rounded-xl px-1">
@@ -340,7 +330,6 @@ function ProductDetailInner() {
             </div>
           </div>
 
-          {/* CTA (desktop inline) */}
           <div className="hidden sm:grid grid-cols-2 gap-3">
             <button
               onClick={addToCart}
@@ -358,7 +347,6 @@ function ProductDetailInner() {
             </button>
           </div>
 
-          {/* Shop card — mobile only (desktop version sits under the image) */}
           {shop && (
             <div
               onClick={() => router.push(`/shop/${shop._id}`)}
@@ -383,7 +371,6 @@ function ProductDetailInner() {
         </div>
       </main>
 
-      {/* Sticky bottom CTA — mobile only (desktop already has inline buttons above) */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-gray-100 px-4 py-3.5 grid grid-cols-2 gap-3">
         <button
           onClick={addToCart}
@@ -401,7 +388,6 @@ function ProductDetailInner() {
         </button>
       </div>
 
-      {/* ─── Buy Now Modal ─── */}
       <div className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center transition-all duration-300 ${showBuyModal ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <div
           className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
@@ -409,7 +395,6 @@ function ProductDetailInner() {
         />
 
         <div className={`relative w-full sm:max-w-lg bg-white border-t sm:border border-gray-100 rounded-t-[28px] sm:rounded-3xl shadow-2xl shadow-gray-900/10 transition-transform duration-300 max-h-[92vh] overflow-y-auto ${showBuyModal ? 'translate-y-0' : 'translate-y-full'}`}>
-          {/* Drag handle (mobile) */}
           <div className="sm:hidden flex justify-center pt-3 pb-1">
             <div className="w-10 h-1 rounded-full bg-gray-200" />
           </div>
@@ -564,7 +549,6 @@ function ProductDetailInner() {
   );
 }
 
-// Suspense wrapper — useSearchParams ke liye mandatory in Next.js App Router
 export default function ProductDetailPage() {
   return (
     <Suspense fallback={

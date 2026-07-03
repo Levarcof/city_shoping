@@ -9,7 +9,6 @@ import AddProductPage from "./AddProductPage";
 import ShopDetailTab from "./ShopDetailTab";
 const u = {}
 
-// ── Animated Lock Toggle ────────────────────────────────────────────────────
 function LockToggle({ isOpen, onToggle }) {
   const [animating, setAnimating] = useState(false);
 
@@ -25,12 +24,10 @@ function LockToggle({ isOpen, onToggle }) {
       title={isOpen ? "Shop is Open — click to close" : "Shop is Closed — click to open"}
       className={`relative flex flex-col items-center gap-1 group transition-all duration-300 ${animating ? "scale-110" : "scale-100"}`}
     >
-      {/* Ripple ring on click */}
       {animating && (
         <span className={`absolute inset-0 rounded-full animate-ping opacity-40 ${isOpen ? "bg-green-400" : "bg-red-400"}`} />
       )}
 
-      {/* Lock icon SVG — shackle rotates on open/close */}
       <div className={`relative w-10 h-10 rounded-2xl flex items-center justify-center border-2 transition-all duration-500
         ${isOpen
           ? "bg-green-500/10 border-green-500/40 shadow-[0_0_16px_rgba(34,197,94,0.3)]"
@@ -38,24 +35,21 @@ function LockToggle({ isOpen, onToggle }) {
         } ${animating ? "rotate-12" : "rotate-0"}`}
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="transition-all duration-500">
-          {/* Lock body */}
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"
             fill={isOpen ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)"}
             stroke={isOpen ? "#22c55e" : "#ef4444"}
             strokeWidth="1.8"
           />
-          {/* Shackle — open = rotated/lifted, closed = down */}
           <path
             d={isOpen
-              ? "M8 11V7a4 4 0 0 1 7.9-1"        /* shackle open/lifted */
-              : "M8 11V7a4 4 0 0 1 8 0v4"         /* shackle closed */
+              ? "M8 11V7a4 4 0 0 1 7.9-1"        
+              : "M8 11V7a4 4 0 0 1 8 0v4"        
             }
             stroke={isOpen ? "#22c55e" : "#ef4444"}
             strokeWidth="1.8"
             strokeLinecap="round"
             className="transition-all duration-500"
           />
-          {/* Keyhole */}
           <circle cx="12" cy="16" r="1.2" fill={isOpen ? "#22c55e" : "#ef4444"} />
         </svg>
       </div>
@@ -67,7 +61,6 @@ function LockToggle({ isOpen, onToggle }) {
   );
 }
 
-// ── Sidebar ──────────────────────────────────────────────────────────────────
 function Sidebar({ activeTab, setActiveTab, shopName, userName, userImage }) {
   const router = useRouter();
   const NAV = [
@@ -94,7 +87,6 @@ function Sidebar({ activeTab, setActiveTab, shopName, userName, userImage }) {
 
   return (
     <aside className="hidden md:flex flex-col fixed left-0 top-0 h-full w-56 bg-white border-r border-gray-100 z-40 py-6 px-4">
-      {/* Logo */}
       <div className="flex items-center gap-2.5 mb-6 px-1">
         <div className="w-8 h-8 rounded-lg bg-[#00B259] flex items-center justify-center flex-shrink-0 shadow-sm">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -105,14 +97,12 @@ function Sidebar({ activeTab, setActiveTab, shopName, userName, userImage }) {
         <span className="text-sm font-black tracking-tight text-gray-900">LocalMart</span>
       </div>
 
-      {/* Shop name card */}
       <div className="bg-[#F0FAF4] border border-green-100 rounded-xl p-3 mb-6">
         <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest mb-0.5">Your Shop</p>
         <p className="text-sm font-black text-gray-900 truncate">{shopName || "My Shop"}</p>
         <p className="text-[11px] text-gray-400 font-medium truncate mt-0.5">{userName || "Owner"}</p>
       </div>
 
-      {/* Nav */}
       <nav className="flex flex-col gap-1 flex-1">
         {NAV.map((item) => {
           const isActive = activeTab === item.id;
@@ -137,7 +127,6 @@ function Sidebar({ activeTab, setActiveTab, shopName, userName, userImage }) {
         })}
       </nav>
 
-      {/* ── Premium profile card at bottom ── */}
       <div className="mt-4 pt-4 border-t border-gray-100">
         <button
           onClick={() => router.push("/profile")}
@@ -151,7 +140,6 @@ function Sidebar({ activeTab, setActiveTab, shopName, userName, userImage }) {
                 <span>{(userName || "O").charAt(0).toUpperCase()}</span>
               )}
             </div>
-            {/* online dot */}
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-white" />
           </div>
 
@@ -169,7 +157,6 @@ function Sidebar({ activeTab, setActiveTab, shopName, userName, userImage }) {
   );
 }
 
-// ── Mobile Bottom Nav ─────────────────────────────────────────────────────
 function MobileNav({ activeTab, setActiveTab, router }) {
   const NAV = [
     {
@@ -257,9 +244,7 @@ function MobileNav({ activeTab, setActiveTab, router }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// OWNER HOME — main export
-// ═══════════════════════════════════════════════════════════════════════════
+
 export default function OwnerHome({ user }) {
   const router = useRouter();
   const [shop, setShop] = useState(null);
@@ -273,7 +258,7 @@ const [activeTab, setActiveTab] = useState(() => {
 });
   u.image = user?.image || "";
 
-  useEffect(() => { fetchMyShop(); }, []); // eslint-disable-line
+  useEffect(() => { fetchMyShop(); }, []); 
   useEffect(() => {
   if (typeof window !== "undefined") {
     localStorage.setItem("ownerActiveTab", activeTab);
@@ -337,7 +322,6 @@ const [activeTab, setActiveTab] = useState(() => {
     <div className="min-h-screen bg-[#F4F6F4] font-sans antialiased pb-24 md:pb-0">
       <Toast msg={toast} />
 
-      {/* Sidebar */}
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -346,14 +330,10 @@ const [activeTab, setActiveTab] = useState(() => {
         userImage={user?.image}
       />
 
-      {/* Main area */}
       <div className="md:ml-56 flex flex-col min-h-screen">
 
-        {/* ── Top Navbar ── */}
         <header className="sticky top-0 z-30 bg-white border-b border-gray-100 px-4 md:px-8 py-3 flex items-center justify-between">
-          {/* Left: shop name */}
           <div className="flex items-center gap-3">
-            {/* Mobile logo */}
             <div className="flex md:hidden items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-[#00B259] flex items-center justify-center flex-shrink-0">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -371,9 +351,7 @@ const [activeTab, setActiveTab] = useState(() => {
             </div>
           </div>
 
-          {/* Right: status badge + lock */}
           <div className="flex items-center gap-3 md:gap-4">
-            {/* Status pill */}
             <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border
               ${shop.isActive
                 ? "bg-green-50 text-green-600 border-green-200"
@@ -383,12 +361,10 @@ const [activeTab, setActiveTab] = useState(() => {
               {shop.isActive ? "Open" : "Closed"}
             </div>
 
-            {/* Animated Lock */}
             <LockToggle isOpen={shop.isActive} onToggle={toggleStatus} />
           </div>
         </header>
 
-        {/* ── Tab Content ── */}
         <main className="flex-1 px-4 md:px-8 py-6">
           {activeTab === "products" && (
             <ProductsTab
@@ -419,7 +395,6 @@ const [activeTab, setActiveTab] = useState(() => {
         </main>
       </div>
 
-      {/* Mobile Bottom Nav */}
       <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} router={router} />
     </div>
   );

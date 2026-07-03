@@ -457,16 +457,16 @@ export default function RegisterPage() {
 
   const validateShop = () => {
     const e = {};
-    if (!shop.name.trim()) e.name = "Shop name zaroori hai";
-    if (!shop.category) e.category = "Category select karo";
-    if (shop.subcategories.length === 0) e.subcategories = "Ek subcategory zaroori hai";
-    if (!shop.location.address.trim()) e.locAddress = "Address zaroori hai";
-    if (!shop.location.city.trim()) e.locCity = "City zaroori hai";
-    if (!shop.location.pincode.trim()) e.locPincode = "Pincode zaroori hai";
-    else if (!/^\d{6}$/.test(shop.location.pincode)) e.locPincode = "6 digits hona chahiye";
-    if (!shop.phone.trim() && !shop.whatsapp.trim()) e.phone = "Phone ya WhatsApp zaroori hai";
-    if (shop.location.lat === "" || isNaN(shop.location.lat)) e.lat = "Latitude zaroori hai";
-    if (shop.location.lng === "" || isNaN(shop.location.lng)) e.lng = "Longitude zaroori hai";
+    if (!shop.name.trim()) e.name = "Shop name is required";
+    if (!shop.category) e.category = "select Category";
+    if (shop.subcategories.length === 0) e.subcategories = "at least one subcategory required";
+    if (!shop.location.address.trim()) e.locAddress = "Address required";
+    if (!shop.location.city.trim()) e.locCity = "City required";
+    if (!shop.location.pincode.trim()) e.locPincode = "Pincode required";
+    else if (!/^\d{6}$/.test(shop.location.pincode)) e.locPincode = "6 digits required";
+    if (!shop.phone.trim() && !shop.whatsapp.trim()) e.phone = "Phone or WhatsApp required";
+    if (shop.location.lat === "" || isNaN(shop.location.lat)) e.lat = "Latitude required";
+    if (shop.location.lng === "" || isNaN(shop.location.lng)) e.lng = "Longitude required";
     setShopErr(e);
     return Object.keys(e).length === 0;
   };

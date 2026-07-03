@@ -23,7 +23,7 @@ export async function POST(req) {
       email,
       phone,
       password,
-      image, // User Image
+      image, 
     } = user
 
     const {
@@ -37,8 +37,8 @@ export async function POST(req) {
       openTime,
       closeTime,
       closedOn,
-      images = [],      // Shop Images
-      thumbnail = '',   // Shop Thumbnail
+      images = [],      
+      thumbnail = '',   
     } = shop
 
     await connectToDatabase()

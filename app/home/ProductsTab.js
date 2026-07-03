@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
-import ProductDetailPanel from "./ProductDetailPanel"; // path apne project structure ke hisaab se adjust kar lena
+import ProductDetailPanel from "./ProductDetailPanel"; 
 
-// ── Product Card ─────────────────────────────────────────────────────────────
 function ProductCard({ item, onDelete, onOpen }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -15,7 +14,6 @@ function ProductCard({ item, onDelete, onOpen }) {
           : "shadow-sm hover:shadow-2xl hover:-translate-y-1 border border-gray-100"
         }`}
     >
-      {/* ── Image area ── */}
       <div className="relative flex-shrink-0 bg-[#F7F8FA] rounded-t-2xl overflow-hidden"
         style={{ aspectRatio: "1 / 1" }}
       >
@@ -36,7 +34,6 @@ function ProductCard({ item, onDelete, onOpen }) {
           </div>
         )}
 
-        {/* Stock badge — top left */}
         <div
           className={`absolute top-2.5 left-2.5 flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full border
             ${item.inStock
@@ -48,14 +45,12 @@ function ProductCard({ item, onDelete, onOpen }) {
           {item.inStock ? "In Stock" : "Out of Stock"}
         </div>
 
-        {/* Subcat tag — top right */}
         {(item.subcat || item.subcategory) && (
           <div className="absolute top-2.5 right-2.5 text-[9px] font-bold px-2 py-1 rounded-full bg-white shadow-sm text-gray-500 border border-gray-100 capitalize">
             {(item.subcat || item.subcategory).replace(/_/g, " ")}
           </div>
         )}
 
-        {/* Delete button — bottom right, visible on hover */}
         {!confirmDelete && (
           <button
             onClick={(e) => { e.stopPropagation(); setConfirmDelete(true); }}
@@ -72,29 +67,24 @@ function ProductCard({ item, onDelete, onOpen }) {
         )}
       </div>
 
-      {/* ── Info area ── */}
       <div className="px-3.5 pt-3 pb-3.5 flex flex-col flex-1 gap-1">
 
-        {/* Name */}
         <h3 className="font-bold text-gray-900 text-[13px] leading-snug line-clamp-2 flex-1">
           {item.name}
         </h3>
 
-        {/* Description */}
         {item.description && (
           <p className="text-[11px] text-gray-400 leading-relaxed line-clamp-1 mt-0.5">
             {item.description}
           </p>
         )}
 
-        {/* Price row */}
         <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-gray-50">
           <div className="flex items-baseline gap-1">
             <span className="text-[17px] font-black text-[#00B259] leading-none">₹{item.price}</span>
             <span className="text-[11px] font-semibold text-gray-400">/ {item.unit}</span>
           </div>
 
-          {/* Confirm-delete inline */}
           {confirmDelete && (
             <div className="flex items-center gap-1.5">
               <button
@@ -117,7 +107,6 @@ function ProductCard({ item, onDelete, onOpen }) {
   );
 }
 
-// ── Stat Card ─────────────────────────────────────────────────────────────────
 function StatCard({ label, value, icon, accent }) {
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
@@ -135,9 +124,6 @@ function StatCard({ label, value, icon, accent }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// PRODUCTS TAB
-// ═══════════════════════════════════════════════════════════════════════════════
 export default function ProductsTab({ shop, onDelete, onAddClick, onShopUpdated, showToast }) {
   const allItems = shop.items || [];
 
@@ -150,7 +136,7 @@ export default function ProductsTab({ shop, onDelete, onAddClick, onShopUpdated,
   const hasSubCats = subCats.length > 0;
 
   const [activeSub, setActiveSub] = useState("All");
-  const [activeItem, setActiveItem] = useState(null); // detail panel ke liye
+  const [activeItem, setActiveItem] = useState(null); 
 
   const filtered =
     activeSub === "All"
@@ -162,7 +148,6 @@ export default function ProductsTab({ shop, onDelete, onAddClick, onShopUpdated,
 
   const inStockCount = allItems.filter((i) => i.inStock).length;
 
-  // ── Jab panel se product update ho, list ko bhi turant refresh karo ─────────
   const handleProductUpdated = (updatedItem) => {
     const updatedShop = {
       ...shop,
@@ -171,13 +156,12 @@ export default function ProductsTab({ shop, onDelete, onAddClick, onShopUpdated,
       ),
     };
     onShopUpdated?.(updatedShop);
-    setActiveItem(updatedItem); // panel ke andar bhi naya data dikhe
+    setActiveItem(updatedItem); 
   };
 
   return (
     <div className="space-y-5">
 
-      {/* ── Stats ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard
           label="Total Products"
@@ -225,7 +209,6 @@ export default function ProductsTab({ shop, onDelete, onAddClick, onShopUpdated,
         />
       </div>
 
-      {/* ── Subcategory Tabs ── */}
       {hasSubCats && (
         <div className="bg-white border border-gray-100 rounded-2xl p-1.5 shadow-sm">
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
@@ -264,7 +247,6 @@ export default function ProductsTab({ shop, onDelete, onAddClick, onShopUpdated,
         </div>
       )}
 
-      {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-black text-gray-900 capitalize">
@@ -286,7 +268,6 @@ export default function ProductsTab({ shop, onDelete, onAddClick, onShopUpdated,
         </button>
       </div>
 
-      {/* ── Grid ── */}
       {filtered.length === 0 ? (
         <div className="text-center py-20 border-2 border-dashed border-gray-100 rounded-2xl bg-white">
           <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4 shadow-sm">
@@ -324,7 +305,6 @@ export default function ProductsTab({ shop, onDelete, onAddClick, onShopUpdated,
         </div>
       )}
 
-      {/* ── Product Detail Panel (slide-over, navbar/sidebar untouched) ── */}
       {activeItem && (
         <ProductDetailPanel
           shop={shop}

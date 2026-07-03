@@ -1,4 +1,3 @@
-// PATH: /app/api/update/user/[id]/route.js
 import connectToDatabase from '@/app/lib/db';
 import User from '@/app/models/User';
 import { NextResponse } from 'next/server';
@@ -11,14 +10,12 @@ export async function PATCH(req, context) {
     console.log("Id : ",id)
     const body   = await req.json();
 
-    // ── Sirf ye fields hi edit hone allowed hain ─────────────────────────────
     const allowedFields = ["name", "phone", "addresses", "pincode", "image"];
     const updates = {};
     allowedFields.forEach((key) => {
       if (body[key] !== undefined) updates[key] = body[key];
     });
 
-    // ── Email ya koi bhi sensitive field kabhi update na ho ─────────────────
     delete updates.email;
     delete updates.password;
     delete updates.role;

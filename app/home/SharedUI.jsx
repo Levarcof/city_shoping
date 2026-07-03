@@ -1,10 +1,3 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// SHARED DESIGN TOKENS (green-dark theme)
-// bg:        #080E08   surface: #0E1A0E   card: #111C11
-// border:    #1A2E1A   accent:  #22C55E   accent-dim: #16A34A
-// text:      #F0FDF4   muted:   #6B7280   faint: #1F2D1F
-// ─────────────────────────────────────────────────────────────────────────────
-
 export function GreenDot({ active }) {
   return (
     <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${active ? "bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)]" : "bg-red-500"}`} />

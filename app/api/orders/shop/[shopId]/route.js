@@ -8,7 +8,6 @@ export async function GET(req, context) {
     await connectToDatabase();
     const { shopId } = await context.params;
 
-    // const { shopId } = params;
     console.log( "The Shop id :" ,shopId)
 
     if (!mongoose.Types.ObjectId.isValid(shopId)) {
@@ -22,7 +21,6 @@ export async function GET(req, context) {
       .populate('customer', 'name phone')
       .sort({ createdAt: -1 });
 
-    // normalize data for frontend
     const formattedOrders = orders.map((o) => ({
       _id: o._id,
       status: o.status,
@@ -35,12 +33,12 @@ export async function GET(req, context) {
       deliveryAddress : o.deliveryAddress,
       paymentMethod : o.paymentMethod,
 
-      total: o.totalAmount, // ✅ FIX (frontend expects total)
+      total: o.totalAmount, 
 
       items: o.items.map((i) => ({
         name: i.name,
         price: i.price,
-        qty: i.quantity, // ✅ FIX (schema mismatch -> qty)
+        qty: i.quantity,
         image: i.image,
       })),
     }));

@@ -11,7 +11,6 @@ const STATUS_STYLES = {
   cancelled: { bg: "bg-red-50", text: "text-red-500", border: "border-red-100", dot: "bg-red-400", label: "Cancelled" },
 };
 
-// NOTE: onClick + cursor-pointer added so the card is clickable
 function OrderCard({ order, onClick }) {
   const s = STATUS_STYLES[order.status] || STATUS_STYLES.pending;
   const date = new Date(order.createdAt).toLocaleString("en-IN", {
@@ -23,7 +22,6 @@ function OrderCard({ order, onClick }) {
       onClick={onClick}
       className="bg-white border border-gray-100 rounded-2xl p-4 hover:border-green-200 hover:shadow-sm transition-all cursor-pointer"
     >
-      {/* Top row */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
           <p className="text-xs font-black text-gray-900">#{order._id?.slice(-6).toUpperCase()}</p>
@@ -35,7 +33,6 @@ function OrderCard({ order, onClick }) {
         </span>
       </div>
 
-      {/* Customer */}
       <div className="flex items-center gap-2.5 py-3 border-t border-b border-gray-50 mb-3">
         <div className="w-7 h-7 rounded-lg bg-[#00B259] flex items-center justify-center text-white text-[11px] font-black flex-shrink-0">
           {order.customer?.name?.[0]?.toUpperCase() || "C"}
@@ -50,7 +47,6 @@ function OrderCard({ order, onClick }) {
         </div>
       </div>
 
-      {/* Items preview */}
       {order.items?.slice(0, 2).map((item, idx) => (
         <div key={idx} className="flex items-center justify-between text-[11px] text-gray-500 mb-1">
           <span className="truncate max-w-[60%]">{item.name}</span>
@@ -69,7 +65,6 @@ export default function OrdersTab({ shopId }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
-  // NEW: which order is currently open in detail view (null = list view)
   const [selectedOrder, setSelectedOrder] = useState(null);
   const SELECTED_ORDER_KEY = "owner_selected_order";
 
@@ -107,8 +102,7 @@ export default function OrdersTab({ shopId }) {
 
   const filtered = filter === "all" ? orders : orders.filter((o) => o.status === filter);
 
-  // NEW: called by OrderDetail after a successful status / payment status update
-  // keeps the list in sync without needing to refetch everything
+
   const handleOrderUpdated = (updatedOrder) => {
     setOrders((prev) =>
       prev.map((o) =>
@@ -127,7 +121,6 @@ export default function OrdersTab({ shopId }) {
     </div>
   );
 
-  // NEW: when an order is selected, show the detail view instead of the list
   if (selectedOrder) {
     return (
       <OrderDetail
@@ -143,20 +136,17 @@ export default function OrdersTab({ shopId }) {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-black text-gray-900">Orders</h2>
           <p className="text-[11px] text-gray-400 mt-0.5">{orders.length} total orders received</p>
         </div>
-        {/* Live indicator */}
         <div className="flex items-center gap-2 bg-green-50 border border-green-100 px-3 py-1.5 rounded-full">
           <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
           <span className="text-[10px] font-bold text-green-600 uppercase tracking-wider">Live</span>
         </div>
       </div>
 
-      {/* Filter pills */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {FILTERS.map((f) => {
           const s = STATUS_STYLES[f];
@@ -183,7 +173,6 @@ export default function OrdersTab({ shopId }) {
         })}
       </div>
 
-      {/* Orders grid */}
       {filtered.length === 0 ? (
         <div className="text-center py-16 border-2 border-dashed border-gray-100 rounded-2xl bg-white">
           <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-3">
