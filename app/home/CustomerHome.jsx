@@ -40,7 +40,7 @@ function CustomerHomeInner({ user }) {
     { key: "hobby_other", subkey: "flower_florist", label: "Flowers", img: "https://tse2.mm.bing.net/th/id/OIP.E9J0rwYCOlgANrXXXC4vLwHaEo?pid=Api&P=0&h=180" },
     { key: "food_grocery", subkey: "bakery", label: "Bakery", img: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=150&auto=format&fit=crop&q=60" },
     { key: "food_grocery", subkey: "dairy", label: "Dairy", img: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=150&auto=format&fit=crop&q=60" },
-    { key: "fashion_apparel", subkey: "general_clothes", label: "Clothes", img: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=150&auto=format&fit=crop&q=60" },
+    { key: "fashion_apparel", subkey: "readymade_garments", label: "Clothes", img: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=150&auto=format&fit=crop&q=60" },
     { key: "electronics_hardware", subkey: "electronics", label: "Electronics", img: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=150&auto=format&fit=crop&q=60" },
     { key: "food_grocery", subkey: "namkeen_snacks", label: "Food", img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=150&auto=format&fit=crop&q=60" },
     { key: "health_beauty", subkey: "medical_store", label: "Medicines", img: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=150&auto=format&fit=crop&q=60" },
