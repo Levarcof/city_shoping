@@ -133,7 +133,7 @@ function ProductDetailInner() {
       } else if (paymentMethod === 'online') {
         const resLoaded = await loadRazorpay();
         if (!resLoaded) {
-          showToast('Razorpay SDK load nahi hua');
+          showToast('Razorpay SDK not getting load');
           setPlacingOrder(false);
           return;
         }
@@ -146,7 +146,7 @@ function ProductDetailInner() {
         const rzpData = await rzpRes.json();
 
         if (!rzpData.success) {
-          showToast('Payment initialize nahi hua');
+          showToast('Payment not getting initialize');
           setPlacingOrder(false);
           return;
         }
@@ -203,7 +203,7 @@ function ProductDetailInner() {
     <div className="min-h-screen bg-[#FAFCFA] flex flex-col justify-center items-center gap-4 px-6 text-center">
       <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center mb-1 text-2xl">⚠️</div>
       <p className="font-bold text-gray-900">Shop ID missing</p>
-      <p className="text-gray-400 text-sm">URL mein ?shopId= parameter nahi hai</p>
+      <p className="text-gray-400 text-sm">URL not heve ?shopId= parameter</p>
       <button onClick={() => router.back()} className="text-sm text-[#00B259] font-bold underline underline-offset-2">Go back</button>
     </div>
   );
@@ -215,7 +215,7 @@ function ProductDetailInner() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       </div>
-      <p className="font-bold text-gray-900">Product nahi mila</p>
+      <p className="font-bold text-gray-900">Product not found</p>
       <p className="text-gray-400 text-xs font-mono mt-1">ID: {id}</p>
       <button onClick={() => router.back()} className="text-sm text-[#00B259] font-bold underline underline-offset-2 mt-2">Go back</button>
     </div>
@@ -411,7 +411,6 @@ function ProductDetailInner() {
                   </button>
                 </div>
 
-                {/* Step indicator */}
                 <div className="flex items-center gap-2 mb-6">
                   <div className="flex items-center gap-2 flex-1">
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black transition-colors ${buyStep >= 1 ? 'bg-[#00B259] text-white' : 'bg-gray-100 text-gray-400'}`}>1</div>
@@ -433,7 +432,7 @@ function ProductDetailInner() {
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00B259" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1118 0z" /><circle cx="12" cy="10" r="3" />
                       </svg>
-                      Current Location Use Karo
+                     Use Current Location
                     </button>
 
                     <input
@@ -467,7 +466,7 @@ function ProductDetailInner() {
                       }}
                       className="w-full bg-[#00B259] hover:bg-[#009c4c] text-white font-bold py-3.5 rounded-xl transition-colors mt-2 shadow-sm shadow-green-900/10"
                     >
-                      Payment pe Jaao →
+                      Go to Payment  →
                     </button>
                   </div>
                 ) : (
@@ -476,13 +475,13 @@ function ProductDetailInner() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
                       </svg>
-                      Address badlo
+                      change Address
                     </button>
 
                     <div className="flex flex-col gap-3">
                       {[
-                        { value: 'cod', label: 'Cash on Delivery', desc: 'Order milne par cash do' },
-                        { value: 'online', label: 'Online Payment', desc: 'Razorpay se secure payment' },
+                        { value: 'cod', label: 'Cash on Delivery', desc: 'Pay after delivery' },
+                        { value: 'online', label: 'Online Payment', desc: 'Pay now online' },
                       ].map(opt => (
                         <label
                           key={opt.value}
@@ -532,13 +531,13 @@ function ProductDetailInner() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-black text-gray-900 mb-2">Order Ho Gaya! 🎉</h2>
+                <h2 className="text-2xl font-black text-gray-900 mb-2">Order Placed! 🎉</h2>
                 <p className="text-gray-400 text-sm mb-6">Order <span className="font-bold text-gray-700">#{placedOrderId.slice(-6).toUpperCase()}</span> confirm ho gaya hai</p>
                 <button
                   onClick={() => router.push('/orders')}
                   className="w-full bg-[#00B259] hover:bg-[#009c4c] text-white font-bold py-3.5 rounded-xl transition-all shadow-sm shadow-green-900/10"
                 >
-                  Mere Orders Dekho
+                 Show your order
                 </button>
               </div>
             )}
