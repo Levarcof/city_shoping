@@ -113,16 +113,8 @@ function CustomerHomeInner({ user }) {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // THE FIX for "location sometimes doesn't reach the shops page":
-  // instead of trusting whatever happens to be in `loc` state at click
-  // time (which may still be null if the GPS callback hasn't resolved
-  // yet), we actively resolve a location before navigating. Because
-  // getUserLocation() caches + de-dupes, this resolves almost instantly
-  // when we already have a fix, and only actually waits on the GPS the
-  // first time (or if the initial warm-up hasn't finished yet).
   const resolveLocation = useCallback(async () => {
     if (loc.lat !== null && loc.lng !== null) return loc;
     setLocating(true);
@@ -284,7 +276,7 @@ function CustomerHomeInner({ user }) {
               onClick={() => handleCategorySelect("food_grocery")}
             >
               <img
-                src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1400&q=85"
+                src="hero.jpg"
                 alt="Fresh Foods"
                 fetchPriority="high"
                 decoding="async"

@@ -73,6 +73,16 @@ const IC = {
       <polyline points="9 18 15 12 9 6" />
     </svg>
   ),
+  Clock: ({ size = 15 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+    </svg>
+  ),
+  ArrowUpRight: ({ size = 12 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" />
+    </svg>
+  ),
 };
 
 export default function ShopDetailPage() {
@@ -169,7 +179,7 @@ export default function ShopDetailPage() {
       }
     } catch (e) {
       console.error(e);
-      setWishlisted(!nextState); 
+      setWishlisted(!nextState);
       toast$("Something went wrong");
     } finally {
       setSavingWishlist(false);
@@ -216,7 +226,7 @@ export default function ShopDetailPage() {
   if (!shop) return (
     <div style={{ ...S.page, alignItems: "center", justifyContent: "center", gap: 12, padding: "0 24px", textAlign: "center" }}>
       <div style={{ fontSize: 48 }}>🏪</div>
-      <h2 style={{ color: "#111", fontWeight: 700, fontSize: 20, margin: 0 }}>Shop not found</h2>
+      <h2 style={{ color: "#0d3b2e", fontWeight: 800, fontSize: 20, margin: 0 }}>Shop not found</h2>
       <p style={{ color: "#888", fontSize: 14, margin: 0 }}>This link may be invalid or the shop was removed.</p>
       <button onClick={() => router.back()} style={S.btnOutlineGreen}>Go back</button>
     </div>
@@ -227,6 +237,10 @@ export default function ShopDetailPage() {
 
   const galleryImages = shop.images?.length ? shop.images : (shop.thumbnail ? [shop.thumbnail] : [FALLBACK_IMG]);
   const hasMultipleImages = galleryImages.length > 1;
+  const avatarSrc = shop.thumbnail || galleryImages[0];
+  const mapsUrl = shop.location?.coordinates
+    ? `https://www.google.com/maps/search/?api=1&query=${shop.location.coordinates[1]},${shop.location.coordinates[0]}`
+    : null;
 
   const nextImg = (e) => { e?.stopPropagation(); setActiveImg(p => (p + 1) % galleryImages.length); };
   const prevImg = (e) => { e?.stopPropagation(); setActiveImg(p => (p - 1 + galleryImages.length) % galleryImages.length); };
@@ -244,15 +258,17 @@ export default function ShopDetailPage() {
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes pulseDot{0%{box-shadow:0 0 0 0 rgba(34,197,94,.45)}70%{box-shadow:0 0 0 7px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
         button{font-family:inherit}
         button:focus-visible{outline:2px solid #22c55e;outline-offset:2px}
+        a:focus-visible{outline:2px solid #22c55e;outline-offset:2px}
         @media (prefers-reduced-motion: reduce){
           *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
         }
 
         .tab-indicator{position:absolute;bottom:0;left:0;right:0;height:3px;background:#22c55e;border-radius:3px 3px 0 0}
         .card-hover{transition:box-shadow .18s,border-color .18s,transform .18s}
-        .card-hover:hover{box-shadow:0 10px 28px rgba(0,0,0,.10);border-color:#d1fae5!important;transform:translateY(-3px)}
+        .card-hover:hover{box-shadow:0 14px 32px rgba(13,59,46,.12);border-color:#d1fae5!important;transform:translateY(-4px)}
         .btn-green:hover{background:#16a34a!important}
         .btn-green:active{transform:scale(0.97)}
         .btn-wa:hover{background:#1da851!important}
@@ -282,27 +298,104 @@ export default function ShopDetailPage() {
 
         .tab-panel{animation:fadeIn .2s ease}
         .narrow-col{max-width:720px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:14px}
+        @media (min-width:1024px){.narrow-col{max-width:none;margin:0}}
 
-        /* Hero gallery */
+        /* ---------- Header brand ---------- */
+        .header-avatar{width:34px;height:34px;border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#22c55e,#0d5c46);color:#fff;font-weight:800;font-size:13px;box-shadow:0 3px 10px rgba(13,92,70,.28)}
+        .header-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+        @media (min-width:768px){.header-avatar{width:40px;height:40px;border-radius:11px;font-size:15px}}
+        @media (min-width:1024px){.header-avatar{width:46px;height:46px;border-radius:13px;font-size:17px}}
+
+        .header-name-row{display:flex;align-items:center;gap:7px;min-width:0}
+        .shop-title{font-weight:800;color:#0d3b2e;letter-spacing:-.3px;font-size:16.5px}
+        @media (min-width:640px){.shop-title{font-size:18.5px}}
+        @media (min-width:1024px){.shop-title{font-size:23px}}
+        @media (min-width:1440px){.shop-title{font-size:25px}}
+
+        .header-live-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+        .header-live-dot.live,.status-dot-ping.live{animation:pulseDot 2.2s infinite}
+
+        .header-sub-text{font-size:10.5px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;display:flex;align-items:center;gap:6px}
+        .header-sub-extra{display:none;color:#9ca3af;font-weight:600;text-transform:none;letter-spacing:0}
+        .header-sub-dot{display:none;color:#d1d5db;font-weight:400}
+        @media (min-width:640px){.header-sub-extra{display:inline}.header-sub-dot{display:inline}}
+
+        /* ---------- Hero gallery ---------- */
+        .hero-card{background:#eef2f0}
+        @media (min-width:1024px){
+          .hero-card{border-radius:22px;overflow:hidden;box-shadow:0 12px 36px rgba(13,59,46,.10);border:1px solid #ecf1ee}
+        }
+
         .hero-main{position:relative;width:100%;aspect-ratio:4/3;background:#eef2f0;overflow:hidden}
         @media (min-width:640px){.hero-main{aspect-ratio:16/9}}
-        @media (min-width:1024px){.hero-main{aspect-ratio:21/8}}
+        @media (min-width:1024px){.hero-main{aspect-ratio:2.35/1}}
+        @media (min-width:1440px){.hero-main{aspect-ratio:2.6/1}}
 
-        .hero-arrow{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:none;background:rgba(15,23,20,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;transition:background .15s}
-        .hero-arrow:hover{background:rgba(15,23,20,.6)}
+        .hero-arrow{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:none;background:rgba(10,20,16,.42);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;transition:background .15s,transform .15s}
+        .hero-arrow:hover{background:rgba(10,20,16,.62);transform:translateY(-50%) scale(1.06)}
+        @media (min-width:1024px){.hero-arrow{width:40px;height:40px}}
 
+        .thumb-strip-wrap{background:#fff;padding:12px 14px}
+        @media (min-width:1024px){.thumb-strip-wrap{padding:16px 18px}}
         .thumb-strip{display:flex;gap:8px;overflow-x:auto;padding:2px 0}
         .thumb-btn{width:58px;height:58px;flex-shrink:0;border-radius:12px;overflow:hidden;border:2px solid transparent;padding:0;cursor:pointer;background:#f3f4f6;transition:border-color .15s,transform .15s}
         .thumb-btn:hover{transform:translateY(-1px)}
         .thumb-btn img{width:100%;height:100%;object-fit:cover;display:block}
         .thumb-active{border-color:#22c55e}
-        @media (min-width:768px){.thumb-btn{width:74px;height:74px}}
+        @media (min-width:768px){.thumb-btn{width:72px;height:72px}}
+        @media (min-width:1024px){.thumb-btn{width:80px;height:80px;border-radius:14px}}
 
-        /* Product grid — auto-fill lets columns actually spread across the wide
-           container instead of clumping in the middle on desktop. */
+        /* ---------- Tab bar ---------- */
+        .tab-inner-row{display:flex}
+        @media (min-width:1024px){.tab-inner-row{justify-content:flex-start;gap:4px}}
+        .tab-btn{position:relative;flex:1;padding:15px 4px;border:none;background:transparent;cursor:pointer;font-size:14px;letter-spacing:.1px;transition:color .15s;display:flex;align-items:center;justify-content:center}
+        .tab-btn:not(.tab-btn-active):hover{color:#16a34a!important}
+        @media (min-width:1024px){.tab-btn{flex:0 0 auto;padding:16px 26px;font-size:14.5px}}
+
+        /* ---------- Detail grid (content + sidebar) ---------- */
+        .shop-layout{display:block}
+        @media (min-width:1024px){
+          .shop-layout{display:grid;grid-template-columns:1fr 336px;gap:30px;align-items:start}
+        }
+        @media (min-width:1440px){
+          .shop-layout{grid-template-columns:1fr 380px;gap:40px}
+        }
+        .shop-sidebar{display:none}
+        @media (min-width:1024px){
+          .shop-sidebar{display:block}
+          .sidebar-sticky{position:sticky;top:152px;display:flex;flex-direction:column;gap:16px}
+        }
+
+        .sidebar-card{background:#fff;border:1px solid #ecf1ee;border-radius:20px;padding:22px 22px 24px;box-shadow:0 4px 26px rgba(13,59,46,.06)}
+        .sidebar-status{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:11.5px;font-weight:700;letter-spacing:.3px;margin-bottom:16px}
+        .status-dot-ping{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+        .sidebar-title{font-size:19px;font-weight:800;color:#0d3b2e;letter-spacing:-.3px;line-height:1.25;margin-bottom:3px}
+        .sidebar-category{font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:18px}
+        .sidebar-cta-group{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+        .sidebar-cta{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 0;border-radius:12px;font-weight:700;font-size:13.5px;text-decoration:none;transition:transform .15s,box-shadow .15s,background .15s;cursor:pointer;border:none}
+        .sidebar-cta:active{transform:scale(.97)}
+        .sidebar-cta-primary{background:#0d3b2e;color:#fff}
+        .sidebar-cta-primary:hover{background:#0a2e24;box-shadow:0 8px 18px rgba(13,59,46,.28)}
+        .sidebar-cta-whatsapp{background:#22c55e;color:#fff}
+        .sidebar-cta-whatsapp:hover{background:#1da851;box-shadow:0 8px 18px rgba(34,197,94,.25)}
+        .sidebar-divider{height:1px;background:#f1f3f1;margin:18px 0}
+        .sidebar-row{display:flex;gap:12px;margin-bottom:16px}
+        .sidebar-row:last-child{margin-bottom:0}
+        .sidebar-row-icon{width:30px;height:30px;border-radius:9px;background:#f0fdf4;color:#16a34a;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .sidebar-row-label{font-size:10.5px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+        .sidebar-row-value{font-size:13.5px;font-weight:600;color:#1f2937;line-height:1.5}
+        .sidebar-row-note{font-size:11.5px;color:#d97706;font-weight:600;margin-top:3px}
+        .sidebar-link-btn{display:inline-flex;align-items:center;gap:4px;margin-top:7px;background:none;border:none;padding:0;color:#16a34a;font-weight:700;font-size:12px;cursor:pointer}
+        .sidebar-link-btn:hover{text-decoration:underline}
+        .sidebar-desc{font-size:13px;color:#6b7280;line-height:1.75}
+
+        /* ---------- Product grid ---------- */
         .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
         @media (min-width:640px){.prod-grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}}
-        @media (min-width:1024px){.prod-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:22px}}
+        @media (min-width:1024px){.prod-grid{grid-template-columns:repeat(auto-fill,minmax(206px,1fr));gap:20px}}
+
+        .chip{flex-shrink:0;padding:7px 16px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;letter-spacing:.2px;background:transparent}
+        @media (min-width:1024px){.chip{padding:8px 18px;font-size:12.5px}}
 
         .map-box{height:280px}
         @media (min-width:768px){.map-box{height:360px}}
@@ -310,6 +403,10 @@ export default function ShopDetailPage() {
 
         .heart-btn{transition:background .18s,border-color .18s}
         .heart-btn:active{transform:scale(.9)}
+
+        @media (min-width:1024px){
+          body{background:linear-gradient(180deg,#f8faf8 0%,#f2f6f3 420px)}
+        }
       `}</style>
 
       {toast && (
@@ -335,10 +432,23 @@ export default function ShopDetailPage() {
           </button>
 
           <div style={S.headerBrand}>
-            <span style={S.headerAvatar}>{shop.name?.charAt(0)?.toUpperCase() || "S"}</span>
+            <span className="header-avatar" aria-hidden="true">
+              {avatarSrc ? <img src={avatarSrc} alt="" /> : (shop.name?.charAt(0)?.toUpperCase() || "S")}
+            </span>
             <div style={S.headerTextCol}>
-              <span style={S.headerName} className="truncate1">{shop.name}</span>
-              <span style={S.headerSub} className="truncate1">{SHOP_CATEGORIES[shop.category]?.label || shop.category}</span>
+              <span className="header-name-row">
+                <span className="shop-title truncate1">{shop.name}</span>
+                <span
+                  className={`header-live-dot ${shop.isActive ? "live" : ""}`}
+                  style={{ background: shop.isActive ? "#22c55e" : "#ef4444" }}
+                  title={shop.isActive ? "Open now" : "Closed"}
+                />
+              </span>
+              <span className="header-sub-text truncate1">
+                {SHOP_CATEGORIES[shop.category]?.label || shop.category}
+                <span className="header-sub-dot">•</span>
+                <span className="header-sub-extra">{shop.openTime} – {shop.closeTime}</span>
+              </span>
             </div>
           </div>
 
@@ -355,62 +465,67 @@ export default function ShopDetailPage() {
         </div>
       </header>
 
-      <div className="hero-main" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-        <img
-          src={galleryImages[activeImg]}
-          alt={`${shop.name} photo ${activeImg + 1}`}
-          style={S.heroImg}
-          loading="eager"
-          decoding="async"
-        />
-        <div style={S.heroOverlay} />
+      <div className="container" style={{ paddingTop: 0 }}>
+        <div className="hero-card">
+          <div className="hero-main" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+            <img
+              src={galleryImages[activeImg]}
+              alt={`${shop.name} photo ${activeImg + 1}`}
+              style={S.heroImg}
+              loading="eager"
+              decoding="async"
+            />
+            <div style={S.heroOverlay} />
 
-        <span style={S.catBadge}>
-          <IC.Tag /> {SHOP_CATEGORIES[shop.category]?.label || shop.category}
-        </span>
-        <span style={{ ...S.statusPill, background: shop.isActive ? "#dcfce7" : "#fee2e2", color: shop.isActive ? "#15803d" : "#dc2626" }}>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: shop.isActive ? "#22c55e" : "#ef4444", boxShadow: shop.isActive ? "0 0 6px #22c55e" : "none" }} />
-          {shop.isActive ? "Open Now" : "Closed"}
-        </span>
+            <span style={S.catBadge}>
+              <IC.Tag /> {SHOP_CATEGORIES[shop.category]?.label || shop.category}
+            </span>
+            <span style={{ ...S.statusPill, background: shop.isActive ? "#dcfce7" : "#fee2e2", color: shop.isActive ? "#15803d" : "#dc2626" }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: shop.isActive ? "#22c55e" : "#ef4444", boxShadow: shop.isActive ? "0 0 6px #22c55e" : "none" }} />
+              {shop.isActive ? "Open Now" : "Closed"}
+            </span>
 
-        {hasMultipleImages && (
-          <>
-            <span style={S.heroCounter}>{activeImg + 1} / {galleryImages.length}</span>
-            <button className="hero-arrow" style={{ left: 12 }} onClick={prevImg} aria-label="Previous photo">
-              <span style={{ display: "flex", transform: "rotate(180deg)" }}><IC.ChevR /></span>
-            </button>
-            <button className="hero-arrow" style={{ right: 12 }} onClick={nextImg} aria-label="Next photo">
-              <IC.ChevR />
-            </button>
-          </>
-        )}
+            {hasMultipleImages && (
+              <>
+                <span style={S.heroCounter}>{activeImg + 1} / {galleryImages.length}</span>
+                <button className="hero-arrow" style={{ left: 12 }} onClick={prevImg} aria-label="Previous photo">
+                  <span style={{ display: "flex", transform: "rotate(180deg)" }}><IC.ChevR /></span>
+                </button>
+                <button className="hero-arrow" style={{ right: 12 }} onClick={nextImg} aria-label="Next photo">
+                  <IC.ChevR />
+                </button>
+              </>
+            )}
+          </div>
+
+          {hasMultipleImages && (
+            <div className="thumb-strip-wrap">
+              <div className="thumb-strip">
+                {galleryImages.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImg(i)}
+                    className={`thumb-btn ${activeImg === i ? "thumb-active" : ""}`}
+                    aria-label={`View photo ${i + 1}`}
+                  >
+                    <img src={img} alt="" loading="lazy" decoding="async" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {hasMultipleImages && (
-        <div style={S.galleryPanel}>
-          <div className="thumb-strip">
-            {galleryImages.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveImg(i)}
-                className={`thumb-btn ${activeImg === i ? "thumb-active" : ""}`}
-                aria-label={`View photo ${i + 1}`}
-              >
-                <img src={img} alt="" loading="lazy" decoding="async" />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div style={S.tabBar}>
-        <div className="container header-row" style={S.tabInner}>
+        <div className="container header-row tab-inner-row">
           {["Products", "About", "Location"].map(t => (
-            <button key={t} onClick={() => setActiveTab(t)} style={{
-              ...S.tabBtn,
-              color: activeTab === t ? "#16a34a" : "#9ca3af",
-              fontWeight: activeTab === t ? 700 : 600,
-            }}>
+            <button
+              key={t}
+              onClick={() => setActiveTab(t)}
+              className={`tab-btn ${activeTab === t ? "tab-btn-active" : ""}`}
+              style={{ color: activeTab === t ? "#16a34a" : "#9ca3af", fontWeight: activeTab === t ? 700 : 600 }}
+            >
               {t}
               {activeTab === t && <span className="tab-indicator" />}
             </button>
@@ -418,196 +533,257 @@ export default function ShopDetailPage() {
         </div>
       </div>
 
-      <main className="container main-pad">
+      <main className="container main-pad shop-layout">
+        <div className="shop-main">
 
-        {activeTab === "Products" && (
-          <div className="tab-panel">
-            {shop.subcategories?.length > 0 && (
-              <div style={S.chipRow}>
-                <button onClick={() => setFilter("")} className={!filter ? "chip-active" : "chip-idle"} style={S.chip}>
-                  All
-                </button>
-                {shop.subcategories.map(sub => (
-                  <button key={sub} onClick={() => setFilter(sub)} className={filter === sub ? "chip-active" : "chip-idle"} style={S.chip}>
-                    {sub.replace(/_/g, " ")}
+          {activeTab === "Products" && (
+            <div className="tab-panel">
+              {shop.subcategories?.length > 0 && (
+                <div style={S.chipRow}>
+                  <button onClick={() => setFilter("")} className={`chip ${!filter ? "chip-active" : "chip-idle"}`}>
+                    All
                   </button>
-                ))}
-              </div>
-            )}
+                  {shop.subcategories.map(sub => (
+                    <button key={sub} onClick={() => setFilter(sub)} className={`chip ${filter === sub ? "chip-active" : "chip-idle"}`}>
+                      {sub.replace(/_/g, " ")}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-            <p style={S.countLabel}>{items?.length || 0} item{items?.length !== 1 ? "s" : ""}</p>
+              <p style={S.countLabel}>{items?.length || 0} item{items?.length !== 1 ? "s" : ""}</p>
 
-            <div className="prod-grid">
-              {items?.map(item => {
-                const hasDiscount = item.mrp && item.mrp > item.price;
-                const discountPct = hasDiscount ? Math.round(((item.mrp - item.price) / item.mrp) * 100) : 0;
-                return (
-                  <div
-                    key={item._id}
-                    onClick={() => router.push(`/product/${item._id}?shopId=${shop._id}`)}
-                    className="card-hover prod-card"
-                    style={S.prodCard}
-                  >
-                    <div style={S.prodImgWrap}>
-                      {item.image
-                        ? <img src={item.image} alt={item.name} className="prod-img" style={S.prodImg} loading="lazy" decoding="async" />
-                        : <div style={S.prodNoImg}>No image</div>
-                      }
-                      {hasDiscount && <span style={S.discountBadge}>{discountPct}% OFF</span>}
-                      <span style={{
-                        ...S.stockBadge,
-                        background: item.inStock ? "#dcfce7" : "#fee2e2",
-                        color: item.inStock ? "#15803d" : "#dc2626",
-                      }}>
-                        {item.inStock ? "In Stock" : "Sold Out"}
-                      </span>
-                    </div>
-                    <div style={S.prodInfo}>
-                      {item.category && <span style={S.prodCat}>{item.category.replace(/_/g, " ")}</span>}
-                      <p style={S.prodName} className="line2">{item.name}</p>
-                      <p style={S.prodPrice}>
-                        <span style={{ fontWeight: 800, color: "#111" }}>₹{item.price}</span>
-                        {hasDiscount && <span style={S.mrpText}>₹{item.mrp}</span>}
-                        <span style={{ color: "#9ca3af", fontWeight: 500 }}> / {item.unit}</span>
-                      </p>
-                      <button
-                        onClick={e => addToCart(e, item)}
-                        disabled={!item.inStock}
-                        className="add-btn"
-                        style={{
-                          ...S.addBtn,
-                          ...(added[item._id]
-                            ? { background: "#dcfce7", borderColor: "#86efac", color: "#15803d" }
-                            : item.inStock
-                            ? { background: "#f0fdf4", borderColor: "#bbf7d0", color: "#16a34a" }
-                            : { background: "#f9fafb", borderColor: "#e5e7eb", color: "#d1d5db", cursor: "not-allowed" }),
-                        }}
-                      >
-                        {added[item._id] ? <><IC.Check /> Added</> : <><IC.Cart /> Add</>}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {(!items || items.length === 0) && (
-              <div style={S.emptyState}>
-                <div style={{ fontSize: 44, lineHeight: 1 }}>📦</div>
-                <p style={{ fontWeight: 700, color: "#111", fontSize: 15 }}>No products found</p>
-                <p style={{ color: "#9ca3af", fontSize: 13 }}>Try a different filter or check back later.</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === "About" && (
-          <div className="tab-panel narrow-col">
-
-            <div style={S.card}>
-              <div style={S.cardHead}>
-                <IC.Info /><span>About {shop.name}</span>
-              </div>
-              <p style={{ color: "#4b5563", fontSize: 14, lineHeight: 1.7 }}>
-                {shop.description || "No description provided for this shop."}
-              </p>
-            </div>
-
-            <div style={S.card}>
-              <div style={S.cardHead}><IC.Info /><span>Shop Details</span></div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                {[
-                  {
-                    label: "Category",
-                    node: <span style={{ fontSize: 14, fontWeight: 600, color: "#111" }}>{SHOP_CATEGORIES[shop.category]?.label || shop.category}</span>,
-                  },
-                  shop.subcategories?.length ? {
-                    label: "Specialties",
-                    node: (
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "flex-end" }}>
-                        {shop.subcategories.map(sub => <span key={sub} style={S.miniChip}>{sub.replace(/_/g, " ")}</span>)}
+              <div className="prod-grid">
+                {items?.map(item => {
+                  const hasDiscount = item.mrp && item.mrp > item.price;
+                  const discountPct = hasDiscount ? Math.round(((item.mrp - item.price) / item.mrp) * 100) : 0;
+                  return (
+                    <div
+                      key={item._id}
+                      onClick={() => router.push(`/product/${item._id}?shopId=${shop._id}`)}
+                      className="card-hover prod-card"
+                      style={S.prodCard}
+                    >
+                      <div style={S.prodImgWrap}>
+                        {item.image
+                          ? <img src={item.image} alt={item.name} className="prod-img" style={S.prodImg} loading="lazy" decoding="async" />
+                          : <div style={S.prodNoImg}>No image</div>
+                        }
+                        {hasDiscount && <span style={S.discountBadge}>{discountPct}% OFF</span>}
+                        <span style={{
+                          ...S.stockBadge,
+                          background: item.inStock ? "#dcfce7" : "#fee2e2",
+                          color: item.inStock ? "#15803d" : "#dc2626",
+                        }}>
+                          {item.inStock ? "In Stock" : "Sold Out"}
+                        </span>
                       </div>
-                    ),
-                  } : null,
-                  {
-                    label: "Phone",
-                    node: <a href={tel} style={S.tableLinkGreen}><IC.Phone />{shop.phone}</a>,
-                  },
-                  {
-                    label: "WhatsApp",
-                    node: shop.whatsapp
-                      ? <a href={wa} target="_blank" rel="noopener noreferrer" style={S.tableLinkGreen}><IC.WA />{shop.whatsapp}</a>
-                      : <span style={{ color: "#d1d5db", fontSize: 14 }}>—</span>,
-                  },
-                  { label: "Timings", node: <span style={{ fontSize: 14, fontWeight: 600, color: "#111" }}>{shop.openTime} – {shop.closeTime}</span> },
-                  {
-                    label: "Closed On",
-                    node: shop.closedOn?.length
-                      ? <span style={{ fontSize: 14, fontWeight: 600, color: "#d97706" }}>{shop.closedOn.join(", ")}</span>
-                      : <span style={{ fontSize: 14, fontWeight: 600, color: "#16a34a" }}>All days open</span>,
-                  },
-                  {
-                    label: "Status",
-                    node: (
-                      <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 14, fontWeight: 700, color: shop.isActive ? "#16a34a" : "#dc2626" }}>
-                        <span style={{ width: 7, height: 7, borderRadius: "50%", background: shop.isActive ? "#22c55e" : "#ef4444", boxShadow: shop.isActive ? "0 0 5px #22c55e" : "none" }} />
-                        {shop.isActive ? "Open Now" : "Closed"}
-                      </span>
-                    ),
-                  },
-                ].filter(Boolean).map(({ label, node }) => (
-                  <div key={label} style={S.tableRow}>
-                    <span style={S.tableLabel}>{label}</span>
-                    <span style={{ textAlign: "right" }}>{node}</span>
-                  </div>
-                ))}
+                      <div style={S.prodInfo}>
+                        {item.category && <span style={S.prodCat}>{item.category.replace(/_/g, " ")}</span>}
+                        <p style={S.prodName} className="line2">{item.name}</p>
+                        <p style={S.prodPrice}>
+                          <span style={{ fontWeight: 800, color: "#111" }}>₹{item.price}</span>
+                          {hasDiscount && <span style={S.mrpText}>₹{item.mrp}</span>}
+                          <span style={{ color: "#9ca3af", fontWeight: 500 }}> / {item.unit}</span>
+                        </p>
+                        <button
+                          onClick={e => addToCart(e, item)}
+                          disabled={!item.inStock}
+                          className="add-btn"
+                          style={{
+                            ...S.addBtn,
+                            ...(added[item._id]
+                              ? { background: "#dcfce7", borderColor: "#86efac", color: "#15803d" }
+                              : item.inStock
+                              ? { background: "#f0fdf4", borderColor: "#bbf7d0", color: "#16a34a" }
+                              : { background: "#f9fafb", borderColor: "#e5e7eb", color: "#d1d5db", cursor: "not-allowed" }),
+                          }}
+                        >
+                          {added[item._id] ? <><IC.Check /> Added</> : <><IC.Cart /> Add</>}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {(!items || items.length === 0) && (
+                <div style={S.emptyState}>
+                  <div style={{ fontSize: 44, lineHeight: 1 }}>📦</div>
+                  <p style={{ fontWeight: 700, color: "#111", fontSize: 15 }}>No products found</p>
+                  <p style={{ color: "#9ca3af", fontSize: 13 }}>Try a different filter or check back later.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "About" && (
+            <div className="tab-panel narrow-col">
+
+              <div style={S.card}>
+                <div style={S.cardHead}>
+                  <IC.Info /><span>About {shop.name}</span>
+                </div>
+                <p style={{ color: "#4b5563", fontSize: 14, lineHeight: 1.7 }}>
+                  {shop.description || "No description provided for this shop."}
+                </p>
+              </div>
+
+              <div style={S.card}>
+                <div style={S.cardHead}><IC.Info /><span>Shop Details</span></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                  {[
+                    {
+                      label: "Category",
+                      node: <span style={{ fontSize: 14, fontWeight: 600, color: "#111" }}>{SHOP_CATEGORIES[shop.category]?.label || shop.category}</span>,
+                    },
+                    shop.subcategories?.length ? {
+                      label: "Specialties",
+                      node: (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "flex-end" }}>
+                          {shop.subcategories.map(sub => <span key={sub} style={S.miniChip}>{sub.replace(/_/g, " ")}</span>)}
+                        </div>
+                      ),
+                    } : null,
+                    {
+                      label: "Phone",
+                      node: <a href={tel} style={S.tableLinkGreen}><IC.Phone />{shop.phone}</a>,
+                    },
+                    {
+                      label: "WhatsApp",
+                      node: shop.whatsapp
+                        ? <a href={wa} target="_blank" rel="noopener noreferrer" style={S.tableLinkGreen}><IC.WA />{shop.whatsapp}</a>
+                        : <span style={{ color: "#d1d5db", fontSize: 14 }}>—</span>,
+                    },
+                    { label: "Timings", node: <span style={{ fontSize: 14, fontWeight: 600, color: "#111" }}>{shop.openTime} – {shop.closeTime}</span> },
+                    {
+                      label: "Closed On",
+                      node: shop.closedOn?.length
+                        ? <span style={{ fontSize: 14, fontWeight: 600, color: "#d97706" }}>{shop.closedOn.join(", ")}</span>
+                        : <span style={{ fontSize: 14, fontWeight: 600, color: "#16a34a" }}>All days open</span>,
+                    },
+                    {
+                      label: "Status",
+                      node: (
+                        <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 14, fontWeight: 700, color: shop.isActive ? "#16a34a" : "#dc2626" }}>
+                          <span style={{ width: 7, height: 7, borderRadius: "50%", background: shop.isActive ? "#22c55e" : "#ef4444", boxShadow: shop.isActive ? "0 0 5px #22c55e" : "none" }} />
+                          {shop.isActive ? "Open Now" : "Closed"}
+                        </span>
+                      ),
+                    },
+                  ].filter(Boolean).map(({ label, node }) => (
+                    <div key={label} style={S.tableRow}>
+                      <span style={S.tableLabel}>{label}</span>
+                      <span style={{ textAlign: "right" }}>{node}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: shop.whatsapp ? "1fr 1fr" : "1fr", gap: 12 }}>
+                <a href={tel} style={S.ctaGreen} className="btn-green">
+                  <IC.Phone size={16} /> Call Now
+                </a>
+                {shop.whatsapp && (
+                  <a href={wa} target="_blank" rel="noopener noreferrer" style={{ ...S.ctaGreen, background: "#22c55e" }} className="btn-wa">
+                    <IC.WA size={16} /> WhatsApp
+                  </a>
+                )}
               </div>
             </div>
+          )}
 
-            <div style={{ display: "grid", gridTemplateColumns: shop.whatsapp ? "1fr 1fr" : "1fr", gap: 12 }}>
-              <a href={tel} style={S.ctaGreen} className="btn-green">
-                <IC.Phone size={16} /> Call Now
-              </a>
-              {shop.whatsapp && (
-                <a href={wa} target="_blank" rel="noopener noreferrer" style={{ ...S.ctaGreen, background: "#22c55e" }} className="btn-wa">
-                  <IC.WA size={16} /> WhatsApp
+          {activeTab === "Location" && (
+            <div className="tab-panel narrow-col">
+              <div style={{ ...S.card, flexDirection: "row", alignItems: "flex-start", gap: 14 }}>
+                <span style={S.pinIcon}><IC.Pin size={16} /></span>
+                <div>
+                  <p style={{ fontWeight: 700, fontSize: 15, color: "#111", marginBottom: 4 }}>{shop.name}</p>
+                  <p style={{ color: "#6b7280", fontSize: 14, lineHeight: 1.6 }}>
+                    {shop.location?.address}, {shop.location?.city}
+                    {shop.location?.pincode ? ` – ${shop.location.pincode}` : ""}
+                  </p>
+                </div>
+              </div>
+
+              {shop.location?.coordinates && (
+                <div className="map-box" style={{ borderRadius: 16, overflow: "hidden", border: "1.5px solid #e5e7eb", boxShadow: "0 2px 16px rgba(0,0,0,.07)" }}>
+                  <MapView userLoc={null} shops={[shop]} className="h-full" />
+                </div>
+              )}
+
+              {mapsUrl && (
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ ...S.ctaGreen, background: "#fff", color: "#16a34a", border: "1.5px solid #bbf7d0" }}
+                >
+                  <IC.Pin size={16} /> Open in Google Maps
                 </a>
               )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {activeTab === "Location" && (
-          <div className="tab-panel narrow-col">
-            <div style={{ ...S.card, flexDirection: "row", alignItems: "flex-start", gap: 14 }}>
-              <span style={S.pinIcon}><IC.Pin size={16} /></span>
-              <div>
-                <p style={{ fontWeight: 700, fontSize: 15, color: "#111", marginBottom: 4 }}>{shop.name}</p>
-                <p style={{ color: "#6b7280", fontSize: 14, lineHeight: 1.6 }}>
-                  {shop.location?.address}, {shop.location?.city}
-                  {shop.location?.pincode ? ` – ${shop.location.pincode}` : ""}
-                </p>
+        <aside className="shop-sidebar">
+          <div className="sidebar-sticky">
+            <div className="sidebar-card">
+              <span className="sidebar-status" style={{ background: shop.isActive ? "#dcfce7" : "#fee2e2", color: shop.isActive ? "#15803d" : "#dc2626" }}>
+                <span className={`status-dot-ping ${shop.isActive ? "live" : ""}`} style={{ background: shop.isActive ? "#22c55e" : "#ef4444" }} />
+                {shop.isActive ? "Open Now" : "Currently Closed"}
+              </span>
+
+              <h2 className="sidebar-title">{shop.name}</h2>
+              <p className="sidebar-category">{SHOP_CATEGORIES[shop.category]?.label || shop.category}</p>
+
+              <div className="sidebar-cta-group">
+                <a href={tel} className="sidebar-cta sidebar-cta-primary">
+                  <IC.Phone size={16} /> Call Now
+                </a>
+                {shop.whatsapp && (
+                  <a href={wa} target="_blank" rel="noopener noreferrer" className="sidebar-cta sidebar-cta-whatsapp">
+                    <IC.WA size={16} /> WhatsApp
+                  </a>
+                )}
               </div>
+
+              <div className="sidebar-divider" />
+
+              <div className="sidebar-row">
+                <span className="sidebar-row-icon"><IC.Clock size={15} /></span>
+                <div>
+                  <p className="sidebar-row-label">Timings</p>
+                  <p className="sidebar-row-value">{shop.openTime} – {shop.closeTime}</p>
+                  {shop.closedOn?.length > 0 && <p className="sidebar-row-note">Closed: {shop.closedOn.join(", ")}</p>}
+                </div>
+              </div>
+
+              {shop.location?.address && (
+                <div className="sidebar-row">
+                  <span className="sidebar-row-icon"><IC.Pin size={15} /></span>
+                  <div>
+                    <p className="sidebar-row-label">Address</p>
+                    <p className="sidebar-row-value">
+                      {shop.location?.address}, {shop.location?.city}
+                      {shop.location?.pincode ? ` – ${shop.location.pincode}` : ""}
+                    </p>
+                    <button className="sidebar-link-btn" onClick={() => setActiveTab("Location")}>
+                      View on map <IC.ArrowUpRight size={11} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {shop.description && (
+                <>
+                  <div className="sidebar-divider" />
+                  <p className="sidebar-desc">{shop.description}</p>
+                </>
+              )}
             </div>
-
-            {shop.location?.coordinates && (
-              <div className="map-box" style={{ borderRadius: 16, overflow: "hidden", border: "1.5px solid #e5e7eb", boxShadow: "0 2px 16px rgba(0,0,0,.07)" }}>
-                <MapView userLoc={null} shops={[shop]} className="h-full" />
-              </div>
-            )}
-
-            {shop.location?.coordinates && (
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${shop.location.coordinates[1]},${shop.location.coordinates[0]}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ ...S.ctaGreen, background: "#fff", color: "#16a34a", border: "1.5px solid #bbf7d0" }}
-              >
-                <IC.Pin size={16} /> Open in Google Maps
-              </a>
-            )}
           </div>
-        )}
+        </aside>
       </main>
     </div>
   );
@@ -637,7 +813,7 @@ const S = {
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
-    height: 60,
+    height: 64,
   },
   iconBtn: {
     width: 38,
@@ -655,44 +831,16 @@ const S = {
   headerBrand: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
+    justifyContent: "flex-start",
+    gap: 11,
     flex: 1,
     minWidth: 0,
-  },
-  headerAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 11,
-    background: "linear-gradient(135deg,#22c55e,#15803d)",
-    color: "#fff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: 800,
-    fontSize: 15,
-    flexShrink: 0,
-    boxShadow: "0 3px 10px rgba(34,197,94,.35)",
   },
   headerTextCol: {
     display: "flex",
     flexDirection: "column",
     minWidth: 0,
     lineHeight: 1.15,
-  },
-  headerName: {
-    fontSize: 15.5,
-    fontWeight: 800,
-    color: "#111",
-    letterSpacing: "-.2px",
-  },
-  headerSub: {
-    fontSize: 10.5,
-    fontWeight: 700,
-    color: "#16a34a",
-    textTransform: "uppercase",
-    letterSpacing: ".5px",
-    marginTop: 2,
   },
 
   heroImg: {
@@ -704,16 +852,16 @@ const S = {
   heroOverlay: {
     position: "absolute",
     inset: 0,
-    background: "linear-gradient(to bottom, rgba(0,0,0,.08) 0%, rgba(0,0,0,.35) 100%)",
+    background: "linear-gradient(180deg, rgba(6,14,11,.45) 0%, rgba(6,14,11,0) 24%, rgba(6,14,11,0) 68%, rgba(6,14,11,.28) 100%)",
   },
   catBadge: {
     position: "absolute",
-    bottom: 40,
-    left: 16,
+    top: 14,
+    left: 14,
     display: "inline-flex",
     alignItems: "center",
     gap: 5,
-    background: "rgba(255,255,255,0.92)",
+    background: "rgba(255,255,255,0.94)",
     border: "1px solid #e5e7eb",
     borderRadius: 20,
     padding: "4px 12px",
@@ -727,8 +875,8 @@ const S = {
   },
   statusPill: {
     position: "absolute",
-    bottom: 10,
-    left: 16,
+    top: 50,
+    left: 14,
     display: "inline-flex",
     alignItems: "center",
     gap: 6,
@@ -743,7 +891,7 @@ const S = {
     position: "absolute",
     top: 12,
     right: 12,
-    background: "rgba(15,23,20,.5)",
+    background: "rgba(10,20,16,.5)",
     color: "#fff",
     fontSize: 11,
     fontWeight: 700,
@@ -753,36 +901,14 @@ const S = {
     letterSpacing: ".2px",
     zIndex: 4,
   },
-  galleryPanel: {
-    background: "#fff",
-    borderBottom: "1px solid #e5e7eb",
-    padding: "12px 16px",
-  },
 
   tabBar: {
     position: "sticky",
-    top: 60,
+    top: 64,
     zIndex: 90,
     background: "rgba(255,255,255,0.95)",
     backdropFilter: "blur(12px)",
     borderBottom: "1px solid #e5e7eb",
-  },
-  tabInner: {
-    display: "flex",
-  },
-  tabBtn: {
-    position: "relative",
-    flex: 1,
-    padding: "15px 4px",
-    border: "none",
-    background: "transparent",
-    cursor: "pointer",
-    fontSize: 14,
-    letterSpacing: ".1px",
-    transition: "color .15s",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
   },
 
   chipRow: {
@@ -791,18 +917,6 @@ const S = {
     overflowX: "auto",
     paddingBottom: 14,
     marginBottom: 4,
-  },
-  chip: {
-    flexShrink: 0,
-    padding: "7px 16px",
-    borderRadius: 20,
-    border: "1.5px solid",
-    fontSize: 12,
-    fontWeight: 600,
-    cursor: "pointer",
-    transition: "all .15s",
-    letterSpacing: ".2px",
-    background: "transparent",
   },
   countLabel: {
     fontSize: 11,
@@ -852,7 +966,7 @@ const S = {
     position: "absolute",
     top: 8,
     right: 8,
-    background: "#111827",
+    background: "linear-gradient(135deg,#f97316,#ea580c)",
     color: "#fff",
     fontSize: 9,
     fontWeight: 800,
@@ -942,7 +1056,7 @@ const S = {
     gap: 7,
     fontSize: 14,
     fontWeight: 700,
-    color: "#111",
+    color: "#0d3b2e",
     paddingBottom: 12,
     borderBottom: "1px solid #f3f4f6",
   },
