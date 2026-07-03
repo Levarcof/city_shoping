@@ -35,18 +35,6 @@ function CustomerHomeInner({ user }) {
     setActiveNav(searchParams.get("tab") || "home");
   }, [searchParams]);
 
-  const GOODS_ITEMS = [
-    { key: "food_grocery", subkey: "sabzi_fruit", label: "Fruits", img: "https://images.pexels.com/photos/5677921/pexels-photo-5677921.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
-    { key: "hobby_other", subkey: "flower_florist", label: "Flowers", img: "https://tse2.mm.bing.net/th/id/OIP.E9J0rwYCOlgANrXXXC4vLwHaEo?pid=Api&P=0&h=180" },
-    { key: "food_grocery", subkey: "bakery", label: "Bakery", img: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=150&auto=format&fit=crop&q=60" },
-    { key: "food_grocery", subkey: "dairy", label: "Dairy", img: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=150&auto=format&fit=crop&q=60" },
-    { key: "fashion_apparel", subkey: "readymade_garments", label: "Clothes", img: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=150&auto=format&fit=crop&q=60" },
-    { key: "electronics_hardware", subkey: "electronics", label: "Electronics", img: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=150&auto=format&fit=crop&q=60" },
-    { key: "food_grocery", subkey: "namkeen_snacks", label: "Food", img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=150&auto=format&fit=crop&q=60" },
-    { key: "health_beauty", subkey: "medical_store", label: "Medicines", img: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=150&auto=format&fit=crop&q=60" },
-  ];
-
-  // NEW: "path" is kept only as a fallback/reference — it's no longer used for navigation
   const NAV_LINKS = [
     {
       id: "home", label: "Home", path: "/",
@@ -267,39 +255,6 @@ function CustomerHomeInner({ user }) {
                     <p className="text-white font-black text-sm leading-none">{s.value}</p>
                     <p className="text-white/50 text-[10px] mt-0.5 font-medium">{s.label}</p>
                   </div>
-                ))}
-              </div>
-            </section>
-            <section className="space-y-3.5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-sm md:text-base font-black text-gray-900 tracking-tight">Quick picks</h2>
-                  <p className="text-[10px] md:text-xs text-gray-400 font-medium mt-0.5">Source essentials instantly</p>
-                </div>
-                <button className="text-[11px] text-[#00B259] font-bold hover:underline">See all</button>
-              </div>
-
-              <div className="grid grid-cols-4 md:grid-cols-8 gap-2.5 md:gap-4">
-                {GOODS_ITEMS.map((item) => (
-                  <button
-                    key={`${item.subkey}-${item.label}`}
-                    type="button"
-                    onClick={() => handleCategorySelect(item.key, item.subkey)}
-                    className="flex flex-col items-center gap-2 group outline-none"
-                  >
-                    <div className="relative w-[62px] h-[62px] md:w-[72px] md:h-[72px] rounded-2xl overflow-hidden bg-white shadow-sm border border-gray-100 group-hover:shadow-md group-hover:border-[#00B259]/40 group-hover:scale-105 transition-all duration-200 mx-auto">
-                      <img
-                        src={item.img}
-                        alt={item.label}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <span className="text-[10px] md:text-[11px] font-bold text-gray-600 group-hover:text-[#00B259] transition-colors text-center leading-tight">
-                      {item.label}
-                    </span>
-                  </button>
                 ))}
               </div>
             </section>
