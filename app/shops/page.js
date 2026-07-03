@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState, useCallback, useMemo, useRef, memo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { SHOP_CATEGORIES } from "../home/constants";
+import { getUserLocation } from "@/app/utils/geolocation";
 
 
 const StorefrontIcon = ({ className }) => (
@@ -149,6 +149,17 @@ function ShopsContent() {
   const [searching, setSearching] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
+  // THE FIX for "location doesn't reach the shops page": this page no
+  // longer just gives up when lat/lng are missing from the URL (which
+  // happened whenever Home navigated before its own GPS read resolved,
+  // or on a direct link / refresh / back-navigation into /shops).
+  // Instead, it tries to silently recover a location itself. Since
+  // getUserLocation() checks a short-lived cache first, this is usually
+  // instant if permission was already granted; it only re-prompts if we
+  // truly have nothing cached.
+  const [locating, setLocating] = useState(false);
+  const [locBlocked, setLocBlocked] = useState(false);
+
   const cacheRef = useRef(new Map());
   const abortRef = useRef(null);
 
@@ -156,6 +167,34 @@ function ShopsContent() {
     if (urlCategory) setCurrentCategory(urlCategory);
     if (urlSubcategory !== null) setCurrentSubcategory(urlSubcategory || "");
   }, [urlCategory, urlSubcategory]);
+
+  const recoverLocation = useCallback(
+    (forceFresh = false) => {
+      setLocating(true);
+      setLocBlocked(false);
+      getUserLocation({ forceFresh })
+        .then(({ lat: newLat, lng: newLng }) => {
+          const params = new URLSearchParams(searchParams.toString());
+          params.set("lat", String(newLat));
+          params.set("lng", String(newLng));
+          router.replace(`/shops?${params.toString()}`, { scroll: false });
+        })
+        .catch(() => {
+          setLocBlocked(true);
+        })
+        .finally(() => {
+          setLocating(false);
+        });
+    },
+    [router, searchParams]
+  );
+
+  // Auto-recover once on mount / whenever we land without coordinates.
+  useEffect(() => {
+    if (lat && lng) return;
+    recoverLocation(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lat, lng]);
 
   const fetchShops = useCallback(async (overrideCat = currentCategory, overrideSubcat = currentSubcategory) => {
     if (!lat || !lng || !overrideCat) return;
@@ -205,6 +244,12 @@ function ShopsContent() {
     fetchShops();
   }, [lat, lng, currentCategory, currentSubcategory]);
 
+  // Abort any in-flight request when the page unmounts, instead of only
+  // when a new fetch starts — avoids a stray state update after unmount.
+  useEffect(() => {
+    return () => abortRef.current?.abort();
+  }, []);
+
   const handleFilterUpdate = (cat, subcat) => {
     setCurrentCategory(cat);
     setCurrentSubcategory(subcat);
@@ -221,6 +266,8 @@ function ShopsContent() {
   const radiusPercent = Math.min(100, Math.max(0, ((radius - 1) / (500 - 1)) * 100));
   const categoryKeys = useMemo(() => Object.keys(SHOP_CATEGORIES), []);
   const catMeta = useMemo(() => (currentCategory ? SHOP_CATEGORIES[currentCategory] : null), [currentCategory]);
+
+  const showLocationNotice = locBlocked && (!lat || !lng);
 
   return (
     <div className="min-h-screen bg-[#F6F8F6] text-slate-800 antialiased flex flex-col">
@@ -262,7 +309,7 @@ function ShopsContent() {
             </h1>
             {currentCategory && (
               <p className="text-[11px] text-slate-400 font-semibold mt-0.5">
-                {searching ? "Searching…" : `${shops.length} shop${shops.length !== 1 ? "s" : ""} found within ${radius}km`}
+                {locating ? "Finding your location…" : searching ? "Searching…" : `${shops.length} shop${shops.length !== 1 ? "s" : ""} found within ${radius}km`}
               </p>
             )}
           </div>
@@ -310,16 +357,35 @@ function ShopsContent() {
             <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider text-center [writing-mode:vertical-lr] rotate-180">
               Search radius
             </span>
-            <div className="flex-1 my-6 flex items-center justify-center w-full">
-              <input
-                type="range" min="1" max="500" value={radius}
-                onChange={(e) => setRadius(Number(e.target.value))}
-                aria-label="Search radius in kilometers"
-                className="cursor-pointer accent-[#00B259] w-36 -rotate-90"
-              />
+
+            {/*
+              FIX for the desktop overlap bug: a rotated <input type="range">
+              keeps its ORIGINAL (pre-rotation) box in the layout flow — CSS
+              transforms don't affect layout, only paint. So a `w-36` slider
+              rotated -90deg still reserved a wide-but-short box, while
+              visually it painted as a tall-but-narrow strip that spilled
+              out of that box and overlapped the "km" pill below it.
+
+              The fix: wrap the input in a box whose *layout* dimensions are
+              already swapped (narrow + tall, matching what the rotated
+              slider will look like), then absolutely-position + center the
+              slider inside it. Now the reserved space and the painted
+              space match, so nothing overlaps.
+            */}
+            <div className="flex-1 my-4 flex items-center justify-center w-full min-h-0">
+              <div className="relative flex items-center justify-center" style={{ width: 28, height: 144 }}>
+                <input
+                  type="range" min="1" max="500" value={radius}
+                  onChange={(e) => setRadius(Number(e.target.value))}
+                  aria-label="Search radius in kilometers"
+                  className="absolute cursor-pointer accent-[#00B259]"
+                  style={{ width: 144, height: 24, transform: "rotate(-90deg)" }}
+                />
+              </div>
             </div>
+
             <div className="flex flex-col items-center gap-2 w-full">
-              <span className="text-xs font-black text-slate-900 bg-emerald-50 border border-emerald-100 px-2.5 py-1.5 rounded-lg shadow-sm w-full text-center">
+              <span className="text-xs font-black text-slate-900 bg-emerald-50 border border-emerald-100 px-2.5 py-1.5 rounded-lg shadow-sm w-full text-center tabular-nums">
                 {radius}km
               </span>
               <button
@@ -390,7 +456,24 @@ function ShopsContent() {
             )}
 
             <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-3 pb-6 custom-scrollbar">
-              {!currentCategory ? (
+              {showLocationNotice ? (
+                <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-amber-200 p-6 max-w-xl mx-auto flex flex-col items-center justify-center shadow-sm my-auto">
+                  <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center mx-auto mb-4">
+                    <PinIcon className="w-6 h-6 text-amber-500" />
+                  </div>
+                  <h3 className="text-sm font-black text-slate-800">We need your location</h3>
+                  <p className="text-xs text-slate-400 mt-1.5 max-w-sm leading-relaxed">
+                    Location access is blocked, so we can't find shops near you. Enable it in your browser's site settings, then retry.
+                  </p>
+                  <button
+                    onClick={() => recoverLocation(true)}
+                    disabled={locating}
+                    className="mt-4 bg-[#00B259] hover:bg-[#009c4c] text-white text-xs font-bold px-4 py-2 rounded-xl disabled:opacity-50 transition-colors"
+                  >
+                    {locating ? "Checking…" : "Retry location"}
+                  </button>
+                </div>
+              ) : !currentCategory ? (
                 <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-slate-200 p-6 max-w-xl mx-auto flex flex-col items-center justify-center shadow-sm my-auto">
                   <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center mx-auto mb-4">
                     <CompassIcon className="w-6 h-6 text-amber-500" />
@@ -400,7 +483,7 @@ function ShopsContent() {
                     Choose a category from the dropdown above to see shops near your location.
                   </p>
                 </div>
-              ) : searching && shops.length === 0 ? (
+              ) : (locating || (searching && shops.length === 0)) ? (
                 <div className={`grid grid-cols-2 gap-3 ${showMap ? "sm:grid-cols-1" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
                   {Array.from({ length: 6 }).map((_, i) => <ShopCardSkeleton key={i} />)}
                 </div>

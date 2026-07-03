@@ -1,14 +1,74 @@
 "use client";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { SHOP_CATEGORIES } from "@/app/constants/shopCategories";
+import { getUserLocation } from "@/app/utils/geolocation";
 
-// 👉 adjust these paths to match where your existing tab components/pages live
-import CartPage from "@/app/cart/page";
-import OrdersPage from "@/app/orders/page";
-import ProfilePage from "@/app/profile/page";
-import SavedShopsPage from "../savedShop/page";
+// Lazy-load the other tabs: the home tab is what almost every user sees
+// first, so we shouldn't ship Cart/Orders/Profile/Saved's JS until the
+// user actually taps into one of those tabs. This shrinks the initial
+// bundle for the home page and makes first load noticeably faster.
+// (ssr: false is fine here since these only ever render after a client
+// click, never during the initial server render of the home tab.)
+const CartPage = dynamic(() => import("@/app/cart/page"), {
+  ssr: false,
+  loading: () => <TabLoading />,
+});
+const OrdersPage = dynamic(() => import("@/app/orders/page"), {
+  ssr: false,
+  loading: () => <TabLoading />,
+});
+const ProfilePage = dynamic(() => import("@/app/profile/page"), {
+  ssr: false,
+  loading: () => <TabLoading />,
+});
+const SavedShopsPage = dynamic(() => import("../savedShop/page"), {
+  ssr: false,
+  loading: () => <TabLoading />,
+});
 
+function TabLoading() {
+  return (
+    <div className="flex items-center justify-center py-24">
+      <div className="w-7 h-7 border-2 border-[#00B259] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
+
+// Hoisted out of the component: these don't depend on props/state, so
+// there's no reason to reallocate the arrays (and re-create the SVG
+// elements) on every render.
+const NAV_LINKS = [
+  {
+    id: "home", label: "Home", path: "/",
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+  },
+  {
+    id: "cart", label: "Cart", path: "/cart",
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>,
+  },
+  {
+    id: "orders", label: "Orders", path: "/orders",
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
+  },
+  {
+    id: "favourite", label: "Saved", path: "/savedShop",
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+  },
+  {
+    id: "profile", label: "Profile", path: "/profile",
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  },
+];
+
+const CATEGORY_COLORS = [
+  "bg-emerald-50 border-emerald-100 hover:border-emerald-300 hover:bg-emerald-100/60",
+  "bg-violet-50 border-violet-100 hover:border-violet-300 hover:bg-violet-100/60",
+  "bg-amber-50 border-amber-100 hover:border-amber-300 hover:bg-amber-100/60",
+  "bg-sky-50 border-sky-100 hover:border-sky-300 hover:bg-sky-100/60",
+  "bg-rose-50 border-rose-100 hover:border-rose-300 hover:bg-rose-100/60",
+];
 
 // Wrapper needed because useSearchParams() requires a Suspense boundary
 export default function CustomerHome({ user }) {
@@ -23,10 +83,10 @@ function CustomerHomeInner({ user }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  console.log("User name : " , user.name)
 
   const [loc, setLoc] = useState({ lat: null, lng: null });
   const [locErr, setLocErr] = useState("");
+  const [locating, setLocating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const [activeNav, setActiveNav] = useState(searchParams.get("tab") || "home");
@@ -35,51 +95,55 @@ function CustomerHomeInner({ user }) {
     setActiveNav(searchParams.get("tab") || "home");
   }, [searchParams]);
 
-  const NAV_LINKS = [
-    {
-      id: "home", label: "Home", path: "/",
-      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
-    },
-    {
-      id: "cart", label: "Cart", path: "/cart",
-      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>,
-    },
-    {
-      id: "orders", label: "Orders", path: "/orders",
-      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
-    },
-    {
-      id: "favourite", label: "Saved", path: "/savedShop",
-      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
-    },
-    {
-      id: "profile", label: "Profile", path: "/profile",
-      icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
-    },
-  ];
-
-  const CATEGORY_COLORS = [
-    "bg-emerald-50 border-emerald-100 hover:border-emerald-300 hover:bg-emerald-100/60",
-    "bg-violet-50 border-violet-100 hover:border-violet-300 hover:bg-violet-100/60",
-    "bg-amber-50 border-amber-100 hover:border-amber-300 hover:bg-amber-100/60",
-    "bg-sky-50 border-sky-100 hover:border-sky-300 hover:bg-sky-100/60",
-    "bg-rose-50 border-rose-100 hover:border-rose-300 hover:bg-rose-100/60",
-  ];
-
+  // Warm up location + prefetch the shops route as soon as Home mounts,
+  // so both are usually already "hot" by the time the user taps something.
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (p) => setLoc({ lat: p.coords.latitude, lng: p.coords.longitude }),
-        () => setLocErr("Location permission denied.")
-      );
-    }
+    let cancelled = false;
+
+    getUserLocation()
+      .then(({ lat, lng }) => {
+        if (!cancelled) setLoc({ lat, lng });
+      })
+      .catch(() => {
+        if (!cancelled) setLocErr("Location permission denied.");
+      });
+
+    router.prefetch?.("/shops");
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleCategorySelect = (catKey, subCatKey = "") => {
+  // THE FIX for "location sometimes doesn't reach the shops page":
+  // instead of trusting whatever happens to be in `loc` state at click
+  // time (which may still be null if the GPS callback hasn't resolved
+  // yet), we actively resolve a location before navigating. Because
+  // getUserLocation() caches + de-dupes, this resolves almost instantly
+  // when we already have a fix, and only actually waits on the GPS the
+  // first time (or if the initial warm-up hasn't finished yet).
+  const resolveLocation = useCallback(async () => {
+    if (loc.lat !== null && loc.lng !== null) return loc;
+    setLocating(true);
+    try {
+      const fresh = await getUserLocation();
+      setLoc(fresh);
+      return fresh;
+    } catch (e) {
+      setLocErr("Location permission denied.");
+      return { lat: null, lng: null };
+    } finally {
+      setLocating(false);
+    }
+  }, [loc]);
+
+  const handleCategorySelect = async (catKey, subCatKey = "") => {
+    const { lat, lng } = await resolveLocation();
     const params = new URLSearchParams();
-    if (loc.lat !== null && loc.lng !== null) {
-      params.set("lat", String(loc.lat));
-      params.set("lng", String(loc.lng));
+    if (lat !== null && lng !== null) {
+      params.set("lat", String(lat));
+      params.set("lng", String(lng));
     }
     params.set("category", catKey);
     if (subCatKey && subCatKey.trim() !== "") {
@@ -88,13 +152,14 @@ function CustomerHomeInner({ user }) {
     router.push(`/shops?${params.toString()}`);
   };
 
-  const handleSearchSubmit = (e) => {
+  const handleSearchSubmit = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
+    const { lat, lng } = await resolveLocation();
     const params = new URLSearchParams();
-    if (loc.lat && loc.lng) {
-      params.append("lat", loc.lat.toString());
-      params.append("lng", loc.lng.toString());
+    if (lat !== null && lng !== null) {
+      params.append("lat", String(lat));
+      params.append("lng", String(lng));
     }
     params.append("query", searchQuery.trim());
     router.push(`/shops?${params.toString()}`);
@@ -204,6 +269,15 @@ function CustomerHomeInner({ user }) {
 
         {isHome && (
           <main className="flex-1 px-4 md:px-8 py-5 md:py-7 space-y-7">
+            {locErr && (
+              <div className="flex items-center gap-2 bg-amber-50 border border-amber-100 text-amber-700 text-xs font-semibold px-4 py-2.5 rounded-xl">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1118 0z" /><circle cx="12" cy="10" r="3" />
+                </svg>
+                Location access is off, so nearby shops may not show. Enable location in your browser settings for best results.
+              </div>
+            )}
+
             <section
               className="relative w-full rounded-2xl overflow-hidden cursor-pointer"
               style={{ height: "clamp(180px, 30vw, 340px)" }}
@@ -212,6 +286,8 @@ function CustomerHomeInner({ user }) {
               <img
                 src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1400&q=85"
                 alt="Fresh Foods"
+                fetchPriority="high"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/10" />
@@ -235,9 +311,10 @@ function CustomerHomeInner({ user }) {
 
                   <button
                     onClick={(e) => { e.stopPropagation(); handleCategorySelect("food_grocery"); }}
-                    className="inline-flex items-center gap-1.5 bg-white text-[#00B259] text-xs md:text-sm font-black px-4 md:px-5 py-2 md:py-2.5 rounded-xl hover:bg-emerald-50 active:scale-95 transition-all shadow-md"
+                    disabled={locating}
+                    className="inline-flex items-center gap-1.5 bg-white text-[#00B259] text-xs md:text-sm font-black px-4 md:px-5 py-2 md:py-2.5 rounded-xl hover:bg-emerald-50 active:scale-95 transition-all shadow-md disabled:opacity-70"
                   >
-                    Shop now
+                    {locating ? "Locating…" : "Shop now"}
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
                     </svg>
@@ -273,7 +350,8 @@ function CustomerHomeInner({ user }) {
                   <div
                     key={key}
                     onClick={() => handleCategorySelect(key)}
-                    className={`group ${CATEGORY_COLORS[i % CATEGORY_COLORS.length]} border rounded-2xl p-4 md:p-5 flex flex-col gap-3 cursor-pointer hover:-translate-y-0.5 hover:shadow-md transition-all duration-200`}
+                    aria-disabled={locating}
+                    className={`group ${CATEGORY_COLORS[i % CATEGORY_COLORS.length]} border rounded-2xl p-4 md:p-5 flex flex-col gap-3 cursor-pointer hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 ${locating ? "opacity-70" : ""}`}
                   >
                     <div className="w-11 h-11 md:w-13 md:h-13 rounded-xl bg-white flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-sm border border-white">
                       {cat.icon || "🏪"}
