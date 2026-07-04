@@ -104,7 +104,21 @@ function ProductDetailInner() {
     }
   };
 
+  // Gate for the "Buy Now" flow: the shop must exist and be open
+  // (isActive === true) in addition to the product being in stock.
+  // Kept as a single source of truth so the desktop button, the
+  // mobile sticky-bar button, and the modal opener all agree.
+  const canBuyNow = !!product?.inStock && !!shop?.isActive;
+
   const handlePlaceOrder = async () => {
+    // Safety net: even if the modal was somehow opened, refuse to place
+    // an order for a shop that is closed.
+    if (!shop?.isActive) {
+      showToast('Ye shop abhi band hai, order place nahi ho sakta');
+      setShowBuyModal(false);
+      return;
+    }
+
     setPlacingOrder(true);
     const totalAmount = product.price * qty;
     console.log("The id of shop :", shop._id);
@@ -287,11 +301,26 @@ function ProductDetailInner() {
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-0.5">Sold by</p>
-                <p className="font-bold text-gray-900 group-hover:text-[#00B259] transition-colors truncate">{shop.name}</p>
+                <div className="flex items-center gap-2 min-w-0">
+                  <p className="font-bold text-gray-900 group-hover:text-[#00B259] transition-colors truncate">{shop.name}</p>
+                  <span className={`flex-shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wide border ${shop.isActive ? 'bg-green-50 text-[#00B259] border-green-100' : 'bg-rose-50 text-rose-500 border-rose-100'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${shop.isActive ? 'bg-[#00B259]' : 'bg-rose-400'}`} />
+                    {shop.isActive ? 'Open' : 'Closed'}
+                  </span>
+                </div>
               </div>
               <svg className="w-4 h-4 text-gray-300 group-hover:text-[#00B259] transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
               </svg>
+            </div>
+          )}
+
+          {shop && !shop.isActive && (
+            <div className="hidden lg:flex items-center gap-2.5 bg-rose-50 border border-rose-100 text-rose-600 text-xs font-bold px-4 py-3 rounded-2xl">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              This shop is currently closed. Buy Now will be available once it reopens.
             </div>
           )}
         </div>
@@ -340,10 +369,11 @@ function ProductDetailInner() {
             </button>
             <button
               onClick={() => { setBuyStep(1); setShowBuyModal(true); }}
-              disabled={!product.inStock}
+              disabled={!canBuyNow}
+              title={!shop?.isActive ? 'Shop is currently closed' : undefined}
               className="bg-[#00B259] hover:bg-[#009c4c] text-white font-black py-3.5 rounded-2xl transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm shadow-green-900/10"
             >
-              Buy Now
+              {shop && !shop.isActive ? 'Shop Closed' : 'Buy Now'}
             </button>
           </div>
 
@@ -361,11 +391,26 @@ function ProductDetailInner() {
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-0.5">Sold by</p>
-                <p className="font-bold text-gray-900 group-hover:text-[#00B259] transition-colors truncate">{shop.name}</p>
+                <div className="flex items-center gap-2 min-w-0">
+                  <p className="font-bold text-gray-900 group-hover:text-[#00B259] transition-colors truncate">{shop.name}</p>
+                  <span className={`flex-shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wide border ${shop.isActive ? 'bg-green-50 text-[#00B259] border-green-100' : 'bg-rose-50 text-rose-500 border-rose-100'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${shop.isActive ? 'bg-[#00B259]' : 'bg-rose-400'}`} />
+                    {shop.isActive ? 'Open' : 'Closed'}
+                  </span>
+                </div>
               </div>
               <svg className="w-4 h-4 text-gray-300 group-hover:text-[#00B259] transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
               </svg>
+            </div>
+          )}
+
+          {shop && !shop.isActive && (
+            <div className="lg:hidden flex items-center gap-2.5 bg-rose-50 border border-rose-100 text-rose-600 text-xs font-bold px-4 py-3 rounded-2xl">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              This shop is currently closed. Buy Now will be available once it reopens.
             </div>
           )}
         </div>
@@ -381,10 +426,11 @@ function ProductDetailInner() {
         </button>
         <button
           onClick={() => { setBuyStep(1); setShowBuyModal(true); }}
-          disabled={!product.inStock}
+          disabled={!canBuyNow}
+          title={!shop?.isActive ? 'Shop is currently closed' : undefined}
           className="bg-[#00B259] hover:bg-[#009c4c] text-white font-black py-3.5 rounded-2xl transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm shadow-green-900/10"
         >
-          Buy Now
+          {shop && !shop.isActive ? 'Shop Closed' : 'Buy Now'}
         </button>
       </div>
 

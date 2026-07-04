@@ -148,15 +148,6 @@ function ShopsContent() {
   const [radius, setRadius] = useState(30);
   const [searching, setSearching] = useState(false);
   const [showMap, setShowMap] = useState(false);
-
-  // THE FIX for "location doesn't reach the shops page": this page no
-  // longer just gives up when lat/lng are missing from the URL (which
-  // happened whenever Home navigated before its own GPS read resolved,
-  // or on a direct link / refresh / back-navigation into /shops).
-  // Instead, it tries to silently recover a location itself. Since
-  // getUserLocation() checks a short-lived cache first, this is usually
-  // instant if permission was already granted; it only re-prompts if we
-  // truly have nothing cached.
   const [locating, setLocating] = useState(false);
   const [locBlocked, setLocBlocked] = useState(false);
 
@@ -244,8 +235,6 @@ function ShopsContent() {
     fetchShops();
   }, [lat, lng, currentCategory, currentSubcategory]);
 
-  // Abort any in-flight request when the page unmounts, instead of only
-  // when a new fetch starts — avoids a stray state update after unmount.
   useEffect(() => {
     return () => abortRef.current?.abort();
   }, []);
@@ -358,20 +347,6 @@ function ShopsContent() {
               Search radius
             </span>
 
-            {/*
-              FIX for the desktop overlap bug: a rotated <input type="range">
-              keeps its ORIGINAL (pre-rotation) box in the layout flow — CSS
-              transforms don't affect layout, only paint. So a `w-36` slider
-              rotated -90deg still reserved a wide-but-short box, while
-              visually it painted as a tall-but-narrow strip that spilled
-              out of that box and overlapped the "km" pill below it.
-
-              The fix: wrap the input in a box whose *layout* dimensions are
-              already swapped (narrow + tall, matching what the rotated
-              slider will look like), then absolutely-position + center the
-              slider inside it. Now the reserved space and the painted
-              space match, so nothing overlaps.
-            */}
             <div className="flex-1 my-4 flex items-center justify-center w-full min-h-0">
               <div className="relative flex items-center justify-center" style={{ width: 28, height: 144 }}>
                 <input

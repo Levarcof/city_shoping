@@ -17,9 +17,7 @@ export async function GET(req) {
 
     const search = searchParams.get("search");
 
-    const query = {
-      isActive: true,
-    };
+    const query = {};
 
     if (category && category !== "All categories") {
       query.category = category;
