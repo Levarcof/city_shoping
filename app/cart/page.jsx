@@ -355,22 +355,6 @@ export default function CartPage() {
               );
             })}
 
-            {totalShops > 1 && (
-              <div className="bg-white border border-green-100 rounded-3xl p-5 flex items-center justify-between gap-4 shadow-sm shadow-green-900/[0.03]">
-                <div>
-                  <p className="text-sm font-bold text-gray-900">Checkout everything together</p>
-                  <p className="text-[11px] text-gray-400 font-medium mt-0.5">
-                    {cartTotalItems} items from {totalShops} shops · ₹{cartTotalAmount}
-                  </p>
-                </div>
-                <button
-                  onClick={() => openModal('all')}
-                  className="bg-gray-900 hover:bg-gray-800 text-white font-bold px-5 py-3 rounded-xl transition-colors text-sm flex-shrink-0"
-                >
-                  Checkout All
-                </button>
-              </div>
-            )}
           </>
         )}
       </main>
@@ -381,12 +365,7 @@ export default function CartPage() {
             <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Cart total</p>
             <p className="font-black text-lg text-gray-900">₹{cartTotalAmount}</p>
           </div>
-          <button
-            onClick={() => openModal(totalShops > 1 ? 'all' : Object.keys(shopGroups)[0])}
-            className="bg-[#00B259] hover:bg-[#009c4c] text-white font-bold px-6 py-3 rounded-xl transition-colors text-sm shadow-sm shadow-green-900/10"
-          >
-            {totalShops > 1 ? 'Checkout All →' : 'Checkout →'}
-          </button>
+        
         </div>
       )}
 
