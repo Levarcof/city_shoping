@@ -5,26 +5,6 @@ import { useRouter } from 'next/navigation';
 const formatCategory = (cat) =>
   cat ? cat.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : '';
 
-const isShopOpenNow = (openTime, closeTime, closedOn = [] , active) => {
-  if(!active){
-    return false;
-  }
-  if (!openTime || !closeTime) return null;
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const now = new Date();
-  const today = days[now.getDay()];
-  if (closedOn.includes(today)) return false;
-
-  const [oh, om] = openTime.split(':').map(Number);
-  const [ch, cm] = closeTime.split(':').map(Number);
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-  const openMinutes = oh * 60 + om;
-  const closeMinutes = ch * 60 + cm;
-
-  return closeMinutes > openMinutes
-    ? nowMinutes >= openMinutes && nowMinutes < closeMinutes
-    : nowMinutes >= openMinutes || nowMinutes < closeMinutes; 
-};
 
 const StarIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 20 20" fill="currentColor">
@@ -61,8 +41,7 @@ const ArrowRightIcon = ({ className }) => (
 const ShopCard = ({ shop, onUnsave, removing, index }) => {
   const router = useRouter();
   const thumb = shop.thumbnail || shop.images?.[0];
-  console.log("Active status : " ,shop.isActive )
-  const open = isShopOpenNow(shop.openTime, shop.closeTime, shop.closedOn , shop.isActive );
+  const open = shop.isActive;
 
   return (
     <div
