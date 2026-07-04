@@ -4,7 +4,7 @@ import '@/app/models/Shop';
 import { getUserFromToken } from '@/app/lib/auth';
 import { NextResponse } from 'next/server';
 
-const SHOP_SELECT = 'name images thumbnail category location avgRating totalRatings isVerified openTime closeTime closedOn';
+const SHOP_SELECT = 'name images thumbnail category location avgRating totalRatings isActive isVerified openTime closeTime closedOn';
 export async function POST(req) {
   try {
     const user = getUserFromToken(req);
@@ -50,7 +50,7 @@ export async function GET(req) {
       return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, savedShops: dbUser.savedShops });
+    return NextResponse.json({ success: true, savedShops: dbUser.savedShops});
   } catch (error) {
     console.error('FETCH SAVED SHOPS ERROR:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });

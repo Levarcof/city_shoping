@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation';
 const formatCategory = (cat) =>
   cat ? cat.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : '';
 
-const isShopOpenNow = (openTime, closeTime, closedOn = []) => {
+const isShopOpenNow = (openTime, closeTime, closedOn = [] , active) => {
+  if(!active){
+    return false;
+  }
   if (!openTime || !closeTime) return null;
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const now = new Date();
@@ -58,7 +61,8 @@ const ArrowRightIcon = ({ className }) => (
 const ShopCard = ({ shop, onUnsave, removing, index }) => {
   const router = useRouter();
   const thumb = shop.thumbnail || shop.images?.[0];
-  const open = isShopOpenNow(shop.openTime, shop.closeTime, shop.closedOn);
+  console.log("Active status : " ,shop.isActive )
+  const open = isShopOpenNow(shop.openTime, shop.closeTime, shop.closedOn , shop.isActive );
 
   return (
     <div
@@ -182,7 +186,6 @@ export default function SavedShopsPage() {
         const contentType = res.headers.get('content-type') || '';
 
         if (!res.ok || !contentType.includes('application/json')) {
-          // console.error('[savedShops] /api/savedShop/save did not return JSON:', res.status);
           if (!cancelled) showToast('Could not load saved shops');
           return;
         }
