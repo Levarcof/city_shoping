@@ -102,10 +102,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## 📸 Screenshots
 <img width="1882" height="908" alt="cityShop" src="https://github.com/user-attachments/assets/cd61d94f-e1b0-4622-bac0-7d4025db6065" />
 
-| Customer Search | Shop Storefront | Owner Dashboard |
-|---|---|---|
-| ![search](./public/screenshots/search.png) | ![shop](./public/screenshots/shop.png) | ![dashboard](./public/screenshots/dashboard.png) |
-
 ---
 
 ## 🌐 Live Demo
@@ -125,7 +121,7 @@ This project is licensed under the [MIT License](LICENSE).
 **Vikram prajapat**
 - Portfolio: https://my-portfolio-weld-nine-60.vercel.app/
 - LinkedIn: https://www.linkedin.com/in/vikram-prajapat-a19a742aa/
-- GitHub: [@your-username](https://github.com/your-username)
+- GitHub: https://github.com/Levarcof
 
 ---
 
