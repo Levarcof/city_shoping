@@ -182,7 +182,7 @@ export default function SavedShopsPage() {
         const contentType = res.headers.get('content-type') || '';
 
         if (!res.ok || !contentType.includes('application/json')) {
-          console.error('[savedShops] /api/savedShop/save did not return JSON:', res.status);
+          // console.error('[savedShops] /api/savedShop/save did not return JSON:', res.status);
           if (!cancelled) showToast('Could not load saved shops');
           return;
         }

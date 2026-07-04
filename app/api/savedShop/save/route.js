@@ -1,5 +1,6 @@
 import connectToDatabase from '@/app/lib/db';
 import User from '@/app/models/User';
+import '@/app/models/Shop'; 
 import { getUserFromToken } from '@/app/lib/auth';
 import { NextResponse } from 'next/server';
 
@@ -38,7 +39,6 @@ export async function POST(req) {
 export async function GET(req) {
   try {
     const user = getUserFromToken(req);
-    console.log("user : " , user)
     if (!user) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
